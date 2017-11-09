@@ -9,9 +9,11 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    IExpressionTree.cpp
 
 HEADERS += \
     ExpressionTree.h \
     ExpressionNode.h \
-    Helper.h
+    Helper.h \
+    IExpressionTree.h

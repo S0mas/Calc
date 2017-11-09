@@ -1,13 +1,10 @@
 #include <QCoreApplication>
-#include "ExpressionTree.h"
+#include "IExpressionTree.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    ExpressionTree calcTree;
-    calcTree.makeData();
-    calcTree.constructExpressionTree(&calcTree.root);
-    calcTree.showTree(calcTree.root);
-    calcTree.calculate();
+    IExpressionTree calcTree;
+    calcTree.makeTree();
     return a.exec();
 }
