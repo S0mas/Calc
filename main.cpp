@@ -5,6 +5,6 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     IExpressionTree calcTree;
-    calcTree.makeTree();
+    calcTree.run();
     return a.exec();
 }

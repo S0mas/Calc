@@ -9,6 +9,12 @@ class Helper
 {
 public:
     Helper();
+
+    static inline bool isKnownOperator(const std::string& str)
+    {
+       return str == "+" || str == "-" || str == "*" || str == "/";
+    }
+
     static inline bool constainsOnlyNumbers(const std::string& str)
     {
         for(const char& sign : str)

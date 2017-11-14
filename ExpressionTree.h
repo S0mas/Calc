@@ -9,105 +9,39 @@
 
 class ExpressionTree
 {
+
 public:
     ExpressionTree() : root(nullptr) {}
+    ExpressionTree(const ExpressionTree& other);
+    ~ExpressionTree();
 
-    void showTree() const   { if(root) showTreeRec(root); }
-    void createExpTree(const std::vector<std::string>& strVec)
-    {
-        std::vector<AbstractExpressionNode*> expVec = translateStringVecToExpVec(strVec);
-        createExpTreeRec(&root, expVec);
-    }
+    void operator=(const ExpressionTree& other);
+    void createExpTree(const std::vector<std::string>& strVec);
+    void setVariablesValues(const std::vector<double>& valuesVec);
+    void clearTree();
 
-    void calculate()
-    {
-        std::cout << "Result: " << root->getValue() << std::endl;
-    }
-
-    AbstractExpressionNode* root;
+    ExpressionTree operator+(const ExpressionTree& other) const;
+    void showTree() const;
+    std::vector<std::string> toStringVec() const;
+    void showVariables() const;
+    void calculate() const;
+    unsigned int getNumberOfVariables() const;
 
 private:
+    AbstractExpressionNode* root;
     std::map<std::string, double> variablesMap;
-    AbstractExpressionNode* getExpNode(const std::string& str)
-    {
-        AbstractExpressionNode* result = nullptr;
-        if(str == "*" || str == "/" || str == "+" || str == "-")
-            result = new Operator2Arg(str);
-        else if(str == "sin" || str == "cos")
-            result = new Operator1Arg(str);
-        else if(Helper::constainsOnlyNumbers(str))
-            result = new Constant(std::stoi(str));
-        else if(Helper::constainsOnlyLettersOrNumbers(str))
-        {
-            variablesMap.insert(std::pair<std::string, double>(str, 1));
-            result = new Variable(str);
-        }
 
-        return result;
-    }
+    void toStringVecRec(const AbstractExpressionNode* root, std::vector<std::string>& strVec) const;
+    std::vector<AbstractExpressionNode*> translateStringVecToExpVec(const std::vector<std::string>& strVec) const;
+    AbstractExpressionNode* getExpNode(const std::string& str) const;
+    AbstractExpressionNode* getFulfillConstans() const;
+    void showTreeRec(const AbstractExpressionNode* root) const;
 
-    void showTreeRec(const AbstractExpressionNode* root) const
-    {
-        if(root)
-        {
-            root->show();
-            for(const AbstractExpressionNode* child : root->childs)
-                showTreeRec(child);
-        }
-    }
-
-    void createExpTreeRec(AbstractExpressionNode** root, std::vector<AbstractExpressionNode*>& expVec)
-    {
-        if(!expVec.empty())
-        {
-            *root = expVec.front();
-            expVec.erase(expVec.begin());
-        }
-        else
-            *root = getFulfillConstans();
-
-        for(auto& child : (*root)->childs)
-            createExpTreeRec(&child, expVec);
-    }
-
-    AbstractExpressionNode* getFulfillConstans() const
-    {
-        return new Constant(1);
-    }
-
-    void setVariablesValues(const std::vector<double>& valuesVec)
-    {
-        if(valuesVec.size() == variablesMap.size())
-        {
-            std::vector<double>::const_iterator it = valuesVec.begin();
-            for(auto& pair : variablesMap)
-                pair.second = *it++;
-
-            updateVariablesValuesInExpTree();
-        }
-    }
-
-    void updateVariablesValuesInExpTree()
-    {
-        updateVariablesValuesInExpTreeRec(root);
-    }
-
-    void updateVariablesValuesInExpTreeRec(AbstractExpressionNode* root)
-    {
-        if(typeid(*root) == typeid(Variable))
-            dynamic_cast<Variable*>(root)->setValue(variablesMap[dynamic_cast<Variable*>(root)->getName()]);
-
-        for(auto& child : root->childs)
-            updateVariablesValuesInExpTreeRec(child);
-    }
-
-    std::vector<AbstractExpressionNode*> translateStringVecToExpVec(const std::vector<std::string>& strVec)
-    {
-        std::vector<AbstractExpressionNode*> expVec;
-        for(auto& str : strVec)
-            expVec.push_back(getExpNode(str));
-        return expVec;
-    }
+    void createExpTreeRec(AbstractExpressionNode** root, std::vector<AbstractExpressionNode*>& expVec);
+    void updateVariablesValuesInExpTree();
+    void updateVariablesValuesInExpTreeRec(AbstractExpressionNode* root);
+    void storeVariables();
+    void storeVariablesRec(const AbstractExpressionNode* root);
 };
 
 #endif //EXPRESSIONTREE_H

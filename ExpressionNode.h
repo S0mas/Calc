@@ -10,8 +10,13 @@ class AbstractExpressionNode
 public:
     AbstractExpressionNode() {}
 
-    virtual ~AbstractExpressionNode() {}
+    virtual ~AbstractExpressionNode()
+    {
+        for(auto& child : childs)
+            if(child) delete child;
+    }
     virtual double getValue() const = 0;
+    virtual std::string toString() const = 0;
     virtual void show() const = 0;
 
     std::vector<AbstractExpressionNode*> childs;
@@ -21,12 +26,13 @@ public:
 class Constant : public AbstractExpressionNode
 {
 public:
-    Constant(const int& value)
+    Constant(const double& value)
         :  value(value) {}
 
     virtual ~Constant() {}
 
     virtual double getValue() const override            { return value; }
+    virtual std::string toString() const override       { return std::to_string(value) ; }
     virtual void show() const override                  { std::cout << value << std::endl; }
 
 private:
@@ -43,9 +49,10 @@ public:
     virtual ~Variable() {}
 
     virtual double getValue() const override            { return value; }
+    virtual std::string toString() const override       { return name; }
     virtual void show() const override                  { std::cout << name << ": " << value << std::endl; }
     std::string getName() const                         { return name; }
-    void setValue(const double& newValue)                  { value = newValue; }
+    void setValue(const double& newValue)               { value = newValue; }
 
 private:
     const std::string name;
@@ -59,6 +66,8 @@ public:
     AbstractOperatorNode(const std::string& type)
         : type(type) {}
 
+    virtual ~AbstractOperatorNode() {}
+    virtual std::string toString() const override       { return type; }
     virtual void show() const override                  { std::cout << type << std::endl; }
 
     const std::string type;
@@ -73,6 +82,7 @@ public:
     {
         childs.push_back(nullptr);
     }
+    virtual ~Operator1Arg() {}
 
     virtual double getValue() const override            { return Helper::getFunction1Arg(type)(childs[0]->getValue()); }
 };
@@ -87,6 +97,7 @@ public:
         childs.push_back(nullptr);
         childs.push_back(nullptr);
     }
+    virtual ~Operator2Arg() {}
 
     virtual double getValue() const override            { return Helper::getFunction2Arg(type)(childs[0]->getValue(), childs[1]->getValue()); }
 };
