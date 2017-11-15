@@ -1,9 +1,6 @@
 #ifndef EXPRESSIONNODE_H
 #define EXPRESSIONNODE_H
-
-#include <iostream>
 #include "Helper.h"
-#include <vector>
 
 class AbstractExpressionNode
 {
@@ -13,11 +10,14 @@ public:
     virtual ~AbstractExpressionNode()
     {
         for(auto& child : childs)
-            if(child) delete child;
+            if(child)
+            {
+                delete child;
+                child = nullptr;
+            }
     }
     virtual double getValue() const = 0;
     virtual std::string toString() const = 0;
-    virtual void show() const = 0;
 
     std::vector<AbstractExpressionNode*> childs;
 };
@@ -26,17 +26,16 @@ public:
 class Constant : public AbstractExpressionNode
 {
 public:
-    Constant(const double& value)
+    Constant(const int& value)
         :  value(value) {}
 
     virtual ~Constant() {}
 
     virtual double getValue() const override            { return value; }
     virtual std::string toString() const override       { return std::to_string(value) ; }
-    virtual void show() const override                  { std::cout << value << std::endl; }
 
 private:
-    const double value;
+    const int value;
 };
 
 //No childs
@@ -50,13 +49,12 @@ public:
 
     virtual double getValue() const override            { return value; }
     virtual std::string toString() const override       { return name; }
-    virtual void show() const override                  { std::cout << name << ": " << value << std::endl; }
     std::string getName() const                         { return name; }
-    void setValue(const double& newValue)               { value = newValue; }
+    void setValue(const int& newValue)                  { value = newValue; }
 
 private:
     const std::string name;
-    double value;
+    int value;
 };
 
 
@@ -68,7 +66,6 @@ public:
 
     virtual ~AbstractOperatorNode() {}
     virtual std::string toString() const override       { return type; }
-    virtual void show() const override                  { std::cout << type << std::endl; }
 
     const std::string type;
 };

@@ -4,12 +4,13 @@
 #include <string>
 #include <functional>
 #include <cmath>
+#include <sstream>
+#include <iterator>
+#include <vector>
 
 class Helper
 {
 public:
-    Helper();
-
     static inline bool isKnownOperator(const std::string& str)
     {
        return str == "+" || str == "-" || str == "*" || str == "/";
@@ -55,6 +56,15 @@ public:
             return std::divides<double>();
         else
             return std::multiplies<double>();
+    }
+
+    static inline std::vector<std::string> splitString(const std::string& str)
+    {
+        std::stringstream ss(str);
+        std::istream_iterator<std::string> begin(ss);
+        std::istream_iterator<std::string> end;
+        std::vector<std::string> strVec(begin, end);
+        return strVec;
     }
 };
 

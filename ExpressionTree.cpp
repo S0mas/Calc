@@ -5,13 +5,10 @@ ExpressionTree::ExpressionTree(const ExpressionTree& other) : root(nullptr)
     createExpTree(other.toStringVec());
 }
 
-
 ExpressionTree::~ExpressionTree()
 {
     clearTree();
 }
-
-
 
 void ExpressionTree::operator=(const ExpressionTree& other)
 {
@@ -19,22 +16,27 @@ void ExpressionTree::operator=(const ExpressionTree& other)
     createExpTree(other.toStringVec());
 }
 
-
+void ExpressionTree::operator=(ExpressionTree&& other)
+{
+    clearTree();
+    root = other.root;
+    variablesMap = other.variablesMap;
+    other.root = nullptr;
+}
 
 void ExpressionTree::createExpTree(const std::vector<std::string>& strVec)
 {
+    clearTree();
     std::vector<AbstractExpressionNode*> expVec = translateStringVecToExpVec(strVec);
     createExpTreeRec(&root, expVec);
     storeVariables();
 }
 
-
-
-void ExpressionTree::setVariablesValues(const std::vector<double>& valuesVec)
+void ExpressionTree::setVariablesValues(const std::vector<int> &valuesVec)
 {
     if(valuesVec.size() == variablesMap.size())
     {
-        std::vector<double>::const_iterator it = valuesVec.begin();
+        std::vector<int>::const_iterator it = valuesVec.begin();
         for(auto& pair : variablesMap)
             pair.second = *it++;
 
@@ -42,61 +44,54 @@ void ExpressionTree::setVariablesValues(const std::vector<double>& valuesVec)
     }
 }
 
-
-
-void ExpressionTree::clearTree()
-{
-    if(root)
-        delete root;
-    variablesMap.clear();
-}
-
-
-
 unsigned int ExpressionTree::getNumberOfVariables() const
 {
     return variablesMap.size();
 }
 
-
-
 ExpressionTree ExpressionTree::operator+(const ExpressionTree& other) const
 {
     ExpressionTree expTree;
     std::vector<std::string> combinedStrVec;
-
+    std::vector<std::string> otherStrVec(other.toStringVec());
     combinedStrVec = toStringVec();
-    combinedStrVec.pop_back();
-    combinedStrVec.insert( combinedStrVec.end(), other.toStringVec().begin(), other.toStringVec().end());
 
+    //Remove last expression node if there is no empty base expression
+    if(!combinedStrVec.empty())
+        combinedStrVec.pop_back();
+
+    combinedStrVec.insert( combinedStrVec.end(), otherStrVec.begin(), otherStrVec.end());
+
+    std::map<std::string, int> oldVariables = variablesMap;
     expTree.createExpTree(combinedStrVec);
+
+    //Restore old variables that are still in use in new expression
+    for(auto& oldPair : oldVariables)
+        if(expTree.variablesMap.find(oldPair.first) != expTree.variablesMap.end())
+            expTree.variablesMap[oldPair.first] = oldPair.second;
+    expTree.updateVariablesValuesInExpTree();
+
     return expTree;
 }
 
-
-
-void ExpressionTree::showTree() const
+std::string ExpressionTree::variablesToString() const
 {
-    if(root)
-        showTreeRec(root);
-}
-
-
-
-void ExpressionTree::showVariables() const
-{
+    std::string vars("");
+    if(variablesMap.empty())
+        vars = "No variables., ";
     for(auto& var : variablesMap)
-        std::cout << var.first << ": " << var.second << std::endl;
+        vars += var.first + ": " + std::to_string(var.second) + ", ";
+
+    //remove last 2 chars ", "
+    vars.pop_back();
+    vars.pop_back();
+    return vars;
 }
 
-
-
-void ExpressionTree::calculate() const
+double ExpressionTree::getResult() const
 {
-    std::cout << "Result: " << root->getValue() << std::endl;
+    return root->getValue();
 }
-
-
 
 std::vector<std::string> ExpressionTree::toStringVec() const
 {
@@ -105,16 +100,15 @@ std::vector<std::string> ExpressionTree::toStringVec() const
     return strVec;
 }
 
-
-
 void ExpressionTree::toStringVecRec(const AbstractExpressionNode* root, std::vector<std::string>& strVec) const
 {
-    strVec.push_back(root->toString());
-    for(auto& child : root->childs)
-        toStringVecRec(child, strVec);
+    if(root)
+    {
+        strVec.push_back(root->toString());
+        for(auto& child : root->childs)
+            toStringVecRec(child, strVec);
+    }
 }
-
-
 
 std::vector<AbstractExpressionNode*> ExpressionTree::translateStringVecToExpVec(const std::vector<std::string>& strVec) const
 {
@@ -123,8 +117,6 @@ std::vector<AbstractExpressionNode*> ExpressionTree::translateStringVecToExpVec(
         expVec.push_back(getExpNode(str));
     return expVec;
 }
-
-
 
 AbstractExpressionNode*ExpressionTree::getExpNode(const std::string& str) const
 {
@@ -141,26 +133,20 @@ AbstractExpressionNode*ExpressionTree::getExpNode(const std::string& str) const
     return result;
 }
 
-
-
 AbstractExpressionNode* ExpressionTree::getFulfillConstans() const
 {
     return new Constant(1);
 }
 
-
-
-void ExpressionTree::showTreeRec(const AbstractExpressionNode* root) const
+void ExpressionTree::clearTree()
 {
     if(root)
     {
-        root->show();
-        for(const AbstractExpressionNode* child : root->childs)
-            showTreeRec(child);
+        delete root;
+        root = nullptr;
     }
+    variablesMap.clear();
 }
-
-
 
 void ExpressionTree::createExpTreeRec(AbstractExpressionNode** root, std::vector<AbstractExpressionNode*>& expVec)
 {
@@ -176,38 +162,36 @@ void ExpressionTree::createExpTreeRec(AbstractExpressionNode** root, std::vector
         createExpTreeRec(&child, expVec);
 }
 
-
-
 void ExpressionTree::updateVariablesValuesInExpTree()
 {
     updateVariablesValuesInExpTreeRec(root);
 }
 
-
-
 void ExpressionTree::updateVariablesValuesInExpTreeRec(AbstractExpressionNode* root)
 {
-    if(typeid(*root) == typeid(Variable))
-        dynamic_cast<Variable*>(root)->setValue(variablesMap[dynamic_cast<Variable*>(root)->getName()]);
+    if(root)
+    {
+        if(typeid(*root) == typeid(Variable))
+            dynamic_cast<Variable*>(root)->setValue(variablesMap[dynamic_cast<Variable*>(root)->getName()]);
 
-    for(auto& child : root->childs)
-        updateVariablesValuesInExpTreeRec(child);
+        for(auto& child : root->childs)
+            updateVariablesValuesInExpTreeRec(child);
+    }
 }
-
-
 
 void ExpressionTree::storeVariables()
 {
     storeVariablesRec(root);
 }
 
-
-
 void ExpressionTree::storeVariablesRec(const AbstractExpressionNode* root)
 {
-    if(typeid(*root) == typeid(Variable))
-        variablesMap.insert(std::make_pair<std::string, double>(dynamic_cast<const Variable*>(root)->getName(), dynamic_cast<const Variable*>(root)->getValue()));
+    if(root)
+    {
+        if(typeid(*root) == typeid(Variable))
+            variablesMap.insert(std::make_pair<std::string, int>(dynamic_cast<const Variable*>(root)->getName(), dynamic_cast<const Variable*>(root)->getValue()));
 
-    for(auto& child : root->childs)
-        storeVariablesRec(child);
+        for(auto& child : root->childs)
+            storeVariablesRec(child);
+    }
 }

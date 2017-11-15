@@ -1,7 +1,7 @@
 QT += core
 QT -= gui
 
-CONFIG += c++11
+CONFIG += c++17
 
 TARGET = Kalkulator
 CONFIG += console
@@ -11,10 +11,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     IExpressionTree.cpp \
-    ExpressionTree.cpp
+    ExpressionTree.cpp \
+    CommandValidator.cpp
 
 HEADERS += \
     ExpressionTree.h \
     ExpressionNode.h \
     Helper.h \
-    IExpressionTree.h
+    IExpressionTree.h \
+    CommandValidator.h \
+    Logger.h \
+    ErrorsMsg.h
