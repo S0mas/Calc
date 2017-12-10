@@ -1,4 +1,5 @@
 #include "ExpressionTree.h"
+#include <iostream>
 
 ExpressionTree::ExpressionTree(const ExpressionTree& other) : root(nullptr)
 {
@@ -30,6 +31,20 @@ void ExpressionTree::createExpTree(const std::vector<std::string>& strVec)
     std::vector<AbstractExpressionNode*> expVec = translateStringVecToExpVec(strVec);
     createExpTreeRec(&root, expVec);
     storeVariables();
+}
+
+void ExpressionTree::createExpTreeRec(AbstractExpressionNode** root, std::vector<AbstractExpressionNode*>& expVec)
+{
+    if(!expVec.empty())
+    {
+        *root = expVec.front();
+        expVec.erase(expVec.begin());
+    }
+    else
+        *root = getFulfillConstans();
+
+    for(auto& child : (*root)->childs)
+        createExpTreeRec(&child, expVec);
 }
 
 void ExpressionTree::setVariablesValues(const std::vector<int> &valuesVec)
@@ -110,6 +125,59 @@ void ExpressionTree::toStringVecRec(const AbstractExpressionNode* root, std::vec
     }
 }
 
+void ExpressionTree::swapNodes(AbstractExpressionNode*** nodeA, AbstractExpressionNode*** nodeB) const
+{
+    AbstractExpressionNode* temp = **nodeA;
+    **nodeA = **nodeB;
+    **nodeB = temp;
+}
+
+AbstractExpressionNode*** ExpressionTree::getRandomNode()
+{
+    AbstractExpressionNode*** randomNode = new AbstractExpressionNode**();
+    int nodeNumber = Helper::getRandomNumber() % getTreeSize();
+    getRandomNodeRec(&root, nodeNumber, randomNode);
+
+    return randomNode;
+}
+
+void ExpressionTree::getRandomNodeRec(AbstractExpressionNode** root, int& nodeNumber, AbstractExpressionNode*** randomNode)
+{
+    if(root && nodeNumber >= 0)
+    {
+        --nodeNumber;
+        if(nodeNumber < 0)
+           *randomNode = root;
+
+        for(auto& child : (*root)->childs)
+            getRandomNodeRec(&child, nodeNumber, randomNode);
+    }
+}
+
+void ExpressionTree::mutate()
+{
+    AbstractExpressionNode*** randomNode = getRandomNode();
+    **randomNode = randNodeGen.getRandomLeafOrNode(variablesMap);
+    delete randomNode;
+}
+
+std::vector<ExpressionTree> ExpressionTree::crossOver(ExpressionTree &other) const
+{
+    ExpressionTree exprTreeA;
+    exprTreeA.createExpTree(toStringVec());
+
+    AbstractExpressionNode*** randA = exprTreeA.getRandomNode();
+    AbstractExpressionNode*** randB = other.getRandomNode();
+    swapNodes(randA, randB);
+    delete randA;
+    delete randB;
+    std::vector<ExpressionTree> trees;
+    trees.push_back(exprTreeA);
+    trees.push_back(other);
+
+    return trees;
+}
+
 std::vector<AbstractExpressionNode*> ExpressionTree::translateStringVecToExpVec(const std::vector<std::string>& strVec) const
 {
     std::vector<AbstractExpressionNode*> expVec;
@@ -118,12 +186,12 @@ std::vector<AbstractExpressionNode*> ExpressionTree::translateStringVecToExpVec(
     return expVec;
 }
 
-AbstractExpressionNode*ExpressionTree::getExpNode(const std::string& str) const
+AbstractExpressionNode* ExpressionTree::getExpNode(const std::string& str) const
 {
     AbstractExpressionNode* result = nullptr;
-    if(str == "*" || str == "/" || str == "+" || str == "-")
+    if(KnownOperators::getKnownOperators()->isOperator2Args(str))
         result = new Operator2Arg(str);
-    else if(str == "sin" || str == "cos")
+    else if(KnownOperators::getKnownOperators()->isOperator1Arg(str))
         result = new Operator1Arg(str);
     else if(Helper::constainsOnlyNumbers(str))
         result = new Constant(std::stod(str));
@@ -146,20 +214,6 @@ void ExpressionTree::clearTree()
         root = nullptr;
     }
     variablesMap.clear();
-}
-
-void ExpressionTree::createExpTreeRec(AbstractExpressionNode** root, std::vector<AbstractExpressionNode*>& expVec)
-{
-    if(!expVec.empty())
-    {
-        *root = expVec.front();
-        expVec.erase(expVec.begin());
-    }
-    else
-        *root = getFulfillConstans();
-
-    for(auto& child : (*root)->childs)
-        createExpTreeRec(&child, expVec);
 }
 
 void ExpressionTree::updateVariablesValuesInExpTree()
@@ -193,5 +247,54 @@ void ExpressionTree::storeVariablesRec(const AbstractExpressionNode* root)
 
         for(auto& child : root->childs)
             storeVariablesRec(child);
+    }
+}
+
+unsigned ExpressionTree::getTreeSize() const
+{
+    unsigned size = 0;
+    getTreeSizeRec(root, size);
+    return size;
+}
+
+void ExpressionTree::getTreeSizeRec(const AbstractExpressionNode* root, unsigned& size) const
+{
+    if(root)
+    {
+        ++size;
+        for(auto& child : root->childs)
+            getTreeSizeRec(child, size);
+    }
+}
+
+void ExpressionTree::showAddresses() const
+{
+    showAddressesRec(root);
+}
+
+void ExpressionTree::showAddressesRec(const AbstractExpressionNode* root) const
+{
+    if(root)
+    {
+        Logger::printDebug( Helper::converAddressToString(static_cast<const void*>(&root)) + "---->" + Helper::converAddressToString(static_cast<const void*>(root)) + "---->" + root->toString());
+        for(auto& child : root->childs)
+            showAddressesRec(child);
+    }
+}
+
+void ExpressionTree::showTree() const
+{
+    std::cout << std::endl;
+    showTreeRec(root);
+    std::cout << std::endl;
+}
+
+void ExpressionTree::showTreeRec(const AbstractExpressionNode* root) const
+{
+    if(root)
+    {
+        std::cout << (root->toString() + " ");
+        for(auto& child : root->childs)
+            showTreeRec(child);
     }
 }

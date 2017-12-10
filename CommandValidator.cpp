@@ -4,7 +4,7 @@ bool CommandValidator::validateComandEnterOrJoin(const std::vector<std::string>&
 {
     for(auto& str : strVec)
     {
-        if(!Helper::isKnownOperator(str) && !Helper::constainsOnlyLettersOrNumbers(str))
+        if(!KnownOperators::getKnownOperators()->isKnownOperator(str) && !Helper::constainsOnlyLettersOrNumbers(str))
             return false;
     }
     return true;

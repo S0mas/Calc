@@ -1,6 +1,8 @@
 #ifndef EXPRESSIONNODE_H
 #define EXPRESSIONNODE_H
 #include "Helper.h"
+#include "KnownOperators.h"
+#include "Logger.h"
 
 class AbstractExpressionNode
 {
@@ -9,12 +11,16 @@ public:
 
     virtual ~AbstractExpressionNode()
     {
+        Logger::printDebug("Deleted Node Address: " + Helper::converAddressToString(static_cast<const void*>(this)));
         for(auto& child : childs)
+        {
             if(child)
             {
                 delete child;
                 child = nullptr;
             }
+        }
+
     }
     virtual double getValue() const = 0;
     virtual std::string toString() const = 0;
@@ -29,7 +35,7 @@ public:
     Constant(const int& value)
         :  value(value) {}
 
-    virtual ~Constant() {}
+    virtual ~Constant() {Logger::printDebug("Deleting Constant: " + toString());}
 
     virtual double getValue() const override            { return value; }
     virtual std::string toString() const override       { return std::to_string(value) ; }
@@ -44,8 +50,10 @@ class Variable : public AbstractExpressionNode
 public:
     Variable(const std::string& name)
         :  name(name), value(1) {}
+    Variable(const std::string& name, int value)
+        :  name(name), value(value) {}
 
-    virtual ~Variable() {}
+    virtual ~Variable() {Logger::printDebug("Deleting.. Variable: " + toString());}
 
     virtual double getValue() const override            { return value; }
     virtual std::string toString() const override       { return name; }
@@ -79,9 +87,9 @@ public:
     {
         childs.push_back(nullptr);
     }
-    virtual ~Operator1Arg() {}
+    virtual ~Operator1Arg() {Logger::printDebug("Deleting. Operator1: " + toString());}
 
-    virtual double getValue() const override            { return Helper::getFunction1Arg(type)(childs[0]->getValue()); }
+    virtual double getValue() const override            { return KnownOperators::getKnownOperators()->getFunction1Arg(type)(childs[0]->getValue()); }
 };
 
 //2 childs
@@ -94,8 +102,9 @@ public:
         childs.push_back(nullptr);
         childs.push_back(nullptr);
     }
-    virtual ~Operator2Arg() {}
+    virtual ~Operator2Arg() {Logger::printDebug("Deleting.. Operator2: " + toString());}
 
-    virtual double getValue() const override            { return Helper::getFunction2Arg(type)(childs[0]->getValue(), childs[1]->getValue()); }
+    virtual double getValue() const override            { return KnownOperators::getKnownOperators()->getFunction2Args(type)(childs[0]->getValue(), childs[1]->getValue()); }
 };
+
 #endif // EXPRESSIONNODE_H

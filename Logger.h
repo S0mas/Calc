@@ -5,14 +5,16 @@
 class Logger
 {
 public:
-    Logger(){}
+    static void printDebug(const std::string& msg)      { if(debugPrintsOn) printLog("DBG: " + msg); }
+    static void printInfo(const std::string& msg)       { printLog("INF: " + msg); }
+    static void printWarning(const std::string& msg)    { printLog("WRN: " + msg); }
+    static void printError(const std::string& msg)      { printLog("ERR: " + msg); }
 
-    void printInfo(const std::string& msg) const        { printLog("INF: " + msg); }
-    void printWarning(const std::string& msg) const     { printLog("WRN: " + msg); }
-    void printError(const std::string& msg) const       { printLog("ERR: " + msg); }
-    void printNormal(const std::string& msg) const      { printLog(msg); }
+    static bool debugPrintsOn;
 private:
-    void printLog(const std::string& msg) const         { std::cout << msg << std::endl; }
+    static void printLog(const std::string& msg)        { std::cout << msg << std::endl; }
+
+    Logger(){}
 };
 
 #endif // LOGGER_H

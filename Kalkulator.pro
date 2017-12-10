@@ -12,7 +12,10 @@ TEMPLATE = app
 SOURCES += main.cpp \
     IExpressionTree.cpp \
     ExpressionTree.cpp \
-    CommandValidator.cpp
+    CommandValidator.cpp \
+    RandomNodeGenerator.cpp \
+    KnownOperators.cpp \
+    GeneticAlgorithm.cpp
 
 HEADERS += \
     ExpressionTree.h \
@@ -21,4 +24,7 @@ HEADERS += \
     IExpressionTree.h \
     CommandValidator.h \
     Logger.h \
-    ErrorsMsg.h
+    ErrorsMsg.h \
+    RandomNodeGenerator.h \
+    KnownOperators.h \
+    GeneticAlgorithm.h

@@ -1,6 +1,7 @@
 #ifndef COMMANDVALIDATOR_H
 #define COMMANDVALIDATOR_H
 #include "Helper.h"
+#include "KnownOperators.h"
 
 class CommandValidator
 {

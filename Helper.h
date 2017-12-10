@@ -2,19 +2,15 @@
 #define HELPER_H
 #include <cctype>
 #include <string>
-#include <functional>
-#include <cmath>
 #include <sstream>
 #include <iterator>
 #include <vector>
+#include <stdlib.h>
+#include <cstdlib>
 
 class Helper
 {
 public:
-    static inline bool isKnownOperator(const std::string& str)
-    {
-       return str == "+" || str == "-" || str == "*" || str == "/";
-    }
 
     static inline bool constainsOnlyNumbers(const std::string& str)
     {
@@ -38,26 +34,6 @@ public:
        return true;
     }
 
-    static inline std::function<double(double)> getFunction1Arg(const std::string& str)
-    {
-        if(str == "sin")
-            return sin;
-        else
-            return cos;
-    }
-
-    static inline std::function<double(double, double)> getFunction2Arg(const std::string& str)
-    {
-        if(str == "+")
-            return std::plus<double>();
-        else if(str == "-")
-            return std::minus<double>();
-        else if(str == "/")
-            return std::divides<double>();
-        else
-            return std::multiplies<double>();
-    }
-
     static inline std::vector<std::string> splitString(const std::string& str)
     {
         std::stringstream ss(str);
@@ -65,6 +41,33 @@ public:
         std::istream_iterator<std::string> end;
         std::vector<std::string> strVec(begin, end);
         return strVec;
+    }
+
+    static inline const std::string converAddressToString(const void* address)
+    {
+        std::stringstream ss;
+        ss << address;
+        return ss.str();
+    }
+
+    static inline unsigned getRandomNumber()
+    {
+        return rand();
+    }
+
+    static inline std::vector<std::string> splitStringVector(std::vector<std::string>& full)
+    {
+        unsigned pivot = getRandomNumber() % full.size();
+        std::vector<std::string> left;
+        std::vector<std::string> right;
+
+        for(unsigned i = 0; i < pivot; ++i)
+            left.push_back(full[i]);
+        for(unsigned i = pivot; i < full.size(); ++i)
+            right.push_back(full[i]);
+
+        full = right;
+        return left;
     }
 };
 

@@ -19,18 +19,27 @@ std::string IExpressionTree::getCommand() const
 
 void IExpressionTree::processCommand(std::vector<std::string>& strVec)
 {
+    if(strVec.empty())
+        return;
+
     const std::string command = strVec.front();
     //Proceed with arguments only
     strVec.erase(strVec.begin());
 
-    if(command == "enter")
-        cmdValidator.validateComandEnterOrJoin(strVec) ? commandEnter(strVec) : logger.printError(ErrorsMsg::unrecognizedSymbol);
+    if(command == "debug")
+        commandDebug();
+//    else if(command == "mutate")
+//        commandMutate();
+//    else if(command == "cross")
+//        commandCrossOver();
+    else if(command == "enter")
+        cmdValidator.validateComandEnterOrJoin(strVec) ? commandEnter(strVec) : Logger::printError(ErrorsMsg::unrecognizedSymbol);
     else if(command == "join")
-        cmdValidator.validateComandEnterOrJoin(strVec) ? commandJoin(strVec) : logger.printError(ErrorsMsg::unrecognizedSymbol);
+        cmdValidator.validateComandEnterOrJoin(strVec) ? commandJoin(strVec) : Logger::printError(ErrorsMsg::unrecognizedSymbol);
     else if(command == "print")
-        cmdValidator.validateComandVarsOrPrint(strVec) ? commandPrint() : logger.printError(ErrorsMsg::invalidArgsNumber);
+        cmdValidator.validateComandVarsOrPrint(strVec) ? commandPrint() : Logger::printError(ErrorsMsg::invalidArgsNumber);
     else if(command == "vars")
-        cmdValidator.validateComandVarsOrPrint(strVec) ? commandVars() : logger.printError(ErrorsMsg::invalidArgsNumber);
+        cmdValidator.validateComandVarsOrPrint(strVec) ? commandVars() : Logger::printError(ErrorsMsg::invalidArgsNumber);
     else if(command == "comp")
     {
         if(cmdValidator.validateComandCompTreeExist(expTree.toStringVec()))
@@ -43,21 +52,21 @@ void IExpressionTree::processCommand(std::vector<std::string>& strVec)
                     if(cmdValidator.validateComandCompArgs(strVec))
                         commandComp(strVec);
                     else
-                        logger.printError(ErrorsMsg::invalidValue);
+                        Logger::printError(ErrorsMsg::invalidValue);
                 }
                 else
-                    logger.printError(ErrorsMsg::invalidArgsNumber);
+                    Logger::printError(ErrorsMsg::invalidArgsNumber);
             }
             else
                 commandComp(strVec);
         }
         else
-            logger.printError(ErrorsMsg::noExpression);
+            Logger::printError(ErrorsMsg::noExpression);
     }
     else if(command == "help")
         commandHelp();
     else
-        logger.printError(ErrorsMsg::invalidCommand);
+        Logger::printError(ErrorsMsg::invalidCommand);
 }
 
 void IExpressionTree::commandEnter(const std::vector<std::string>& strVec)
@@ -83,7 +92,7 @@ void IExpressionTree::commandComp(const std::vector<std::string>& strVec)
                    [](const std::string& str) { return std::stoi(str); });
     if(!valuesVec.empty())
         expTree.setVariablesValues(valuesVec);
-    logger.printInfo(std::to_string(expTree.getResult()));
+    Logger::printInfo(std::to_string(expTree.getResult()));
 }
 
 void IExpressionTree::commandPrint() const
@@ -94,17 +103,17 @@ void IExpressionTree::commandPrint() const
 
     if(expression == "")
         expression = "No expression to print.";
-    logger.printInfo(expression);
+    Logger::printInfo(expression);
 }
 
 void IExpressionTree::commandVars() const
 {
-    logger.printInfo(expTree.variablesToString());
+    Logger::printInfo(expTree.variablesToString());
 }
 
 void IExpressionTree::commandHelp() const
 {
-    logger.printNormal("Options:\n"
+    Logger::printInfo("Options:\n"
                      "enter <expression> - to create expression ex. + 5 5, only unsigned int values and operators: +, -, *, /, sin, cos are valid.\n"
                      "join <expression> - to join any expression to existing one, last node from old expression will be lost.\n"
                      "comp - calculate value of expression with defined variabls values \n"
@@ -117,7 +126,22 @@ void IExpressionTree::commandHelp() const
 void IExpressionTree::wasExprFixed(const std::vector<std::string> &input, const std::vector<std::string> &output) const
 {
     if(input.size() > output.size())
-        logger.printWarning("Expression was fixed by removing of invalid part.");
+        Logger::printWarning("Expression was fixed by removing of invalid part.");
     else if(input.size() < output.size())
-        logger.printWarning("Expression was fixed by adding some '1' values.");
+        Logger::printWarning("Expression was fixed by adding some '1' values.");
+}
+
+//void IExpressionTree::commandMutate()
+//{
+//    expTree.mutate();
+//}
+
+//void IExpressionTree::commandCrossOver(ExpressionTree expTreeB) const
+//{
+//    expTree.crossOver(expTreeB);
+//}
+
+void IExpressionTree::commandDebug()
+{
+    Logger::debugPrintsOn = !Logger::debugPrintsOn;
 }
