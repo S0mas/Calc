@@ -25,6 +25,16 @@ void GeneticAlgorithm::process(const unsigned &populationSize, const unsigned &i
         crossOver(crossOverProb, population);
         mutate(mutateProb, population);
     }
+
+    Logger::printInfo("Results:");
+    int i = 0;
+    for(auto& tree : population)
+    {
+        Logger::printInfo(std::to_string(i) + ". " + std::to_string(evaluateTree(tree)));
+        ++i;
+    }
+
+    Logger::printInfo("End.");
 }
 
 void GeneticAlgorithm::loadDataFile()
