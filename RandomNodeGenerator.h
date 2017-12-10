@@ -6,16 +6,16 @@
 
 class RandomNodeGenerator
 {
-  public:
-    RandomNodeGenerator(){}
+public:
+    static AbstractExpressionNode* getRandomLeafOrNode(const std::map<std::string, double>& variablesMap);
+    static AbstractExpressionNode* getRandomNode();
+    static AbstractExpressionNode* getRandomLeaf(const std::map<std::string, double>& variablesMap);
+private:
+    static const std::string& getRandomOperator1Arg();
+    static const std::string& getRandomOperator2Args();
+    static AbstractExpressionNode* getRandomVariable(const std::map<std::string, double>& variablesMap);
+    static AbstractExpressionNode* fillNode(AbstractExpressionNode* nodeToFill, const std::map<std::string, double>& variablesMap);
 
-    const std::string& getRandomOperator1Arg() const;
-    const std::string& getRandomOperator2Args() const;
-    AbstractExpressionNode* getRandomVariable(const std::map<std::string, int>& variablesMap) const;
-    AbstractExpressionNode* fillNode(AbstractExpressionNode* nodeToFill, const std::map<std::string, int>& variablesMap) const;
-    AbstractExpressionNode* getRandomNode() const;
-    AbstractExpressionNode* getRandomLeaf(const std::map<std::string, int>& variablesMap) const;
-    AbstractExpressionNode* getRandomLeafOrNode(const std::map<std::string, int>& variablesMap) const;
 };
 
 #endif // RANDOMNODEGENERATOR_H

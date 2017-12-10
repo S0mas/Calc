@@ -87,9 +87,9 @@ void IExpressionTree::commandJoin(const std::vector<std::string>& strVec)
 
 void IExpressionTree::commandComp(const std::vector<std::string>& strVec)
 {
-    std::vector<int> valuesVec;
+    std::vector<double> valuesVec;
     std::transform(strVec.begin(), strVec.end(), std::back_inserter(valuesVec),
-                   [](const std::string& str) { return std::stoi(str); });
+                   [](const std::string& str) { return std::stod(str); });
     if(!valuesVec.empty())
         expTree.setVariablesValues(valuesVec);
     Logger::printInfo(std::to_string(expTree.getResult()));

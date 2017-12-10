@@ -47,11 +47,11 @@ void ExpressionTree::createExpTreeRec(AbstractExpressionNode** root, std::vector
         createExpTreeRec(&child, expVec);
 }
 
-void ExpressionTree::setVariablesValues(const std::vector<int> &valuesVec)
+void ExpressionTree::setVariablesValues(const std::vector<double> &valuesVec)
 {
     if(valuesVec.size() == variablesMap.size())
     {
-        std::vector<int>::const_iterator it = valuesVec.begin();
+        std::vector<double>::const_iterator it = valuesVec.begin();
         for(auto& pair : variablesMap)
             pair.second = *it++;
 
@@ -77,7 +77,7 @@ ExpressionTree ExpressionTree::operator+(const ExpressionTree& other) const
 
     combinedStrVec.insert( combinedStrVec.end(), otherStrVec.begin(), otherStrVec.end());
 
-    std::map<std::string, int> oldVariables = variablesMap;
+    std::map<std::string, double> oldVariables = variablesMap;
     expTree.createExpTree(combinedStrVec);
 
     //Restore old variables that are still in use in new expression
@@ -125,13 +125,6 @@ void ExpressionTree::toStringVecRec(const AbstractExpressionNode* root, std::vec
     }
 }
 
-void ExpressionTree::swapNodes(AbstractExpressionNode*** nodeA, AbstractExpressionNode*** nodeB) const
-{
-    AbstractExpressionNode* temp = **nodeA;
-    **nodeA = **nodeB;
-    **nodeB = temp;
-}
-
 AbstractExpressionNode*** ExpressionTree::getRandomNode()
 {
     AbstractExpressionNode*** randomNode = new AbstractExpressionNode**();
@@ -157,25 +150,8 @@ void ExpressionTree::getRandomNodeRec(AbstractExpressionNode** root, int& nodeNu
 void ExpressionTree::mutate()
 {
     AbstractExpressionNode*** randomNode = getRandomNode();
-    **randomNode = randNodeGen.getRandomLeafOrNode(variablesMap);
+    **randomNode = RandomNodeGenerator::getRandomLeafOrNode(variablesMap);
     delete randomNode;
-}
-
-std::vector<ExpressionTree> ExpressionTree::crossOver(ExpressionTree &other) const
-{
-    ExpressionTree exprTreeA;
-    exprTreeA.createExpTree(toStringVec());
-
-    AbstractExpressionNode*** randA = exprTreeA.getRandomNode();
-    AbstractExpressionNode*** randB = other.getRandomNode();
-    swapNodes(randA, randB);
-    delete randA;
-    delete randB;
-    std::vector<ExpressionTree> trees;
-    trees.push_back(exprTreeA);
-    trees.push_back(other);
-
-    return trees;
 }
 
 std::vector<AbstractExpressionNode*> ExpressionTree::translateStringVecToExpVec(const std::vector<std::string>& strVec) const

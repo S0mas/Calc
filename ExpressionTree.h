@@ -7,7 +7,7 @@
 
 class ExpressionTree
 {
-
+friend class RandomTreeGenerator;
 public:
     ExpressionTree() : root(nullptr) {}
     ExpressionTree(const ExpressionTree& other);
@@ -16,20 +16,18 @@ public:
     void operator=(const ExpressionTree& other);
     void operator=(ExpressionTree&& other);
     void createExpTree(const std::vector<std::string>& strVec);
-    void setVariablesValues(const std::vector<int>& valuesVec);
+    void setVariablesValues(const std::vector<double>& valuesVec);
 
     ExpressionTree operator+(const ExpressionTree& other) const;
     std::string variablesToString() const;
     double getResult() const;
     unsigned int getNumberOfVariables() const;
     std::vector<std::string> toStringVec() const;
-    AbstractExpressionNode*** getRandomNode();
+
     void mutate();
-    std::vector<ExpressionTree> crossOver(ExpressionTree &other) const;
 private:
     AbstractExpressionNode* root;
-    std::map<std::string, int> variablesMap;
-    RandomNodeGenerator randNodeGen;
+    std::map<std::string, double> variablesMap;
 
     void toStringVecRec(const AbstractExpressionNode* root, std::vector<std::string>& strVec) const;
     std::vector<AbstractExpressionNode*> translateStringVecToExpVec(const std::vector<std::string>& strVec) const;
@@ -49,11 +47,34 @@ private:
     void showAddresses() const;
     void showAddressesRec(const AbstractExpressionNode* root) const;
 
-    void swapNodes(AbstractExpressionNode*** nodeA, AbstractExpressionNode*** nodeB) const;
+    AbstractExpressionNode*** getRandomNode();
     void getRandomNodeRec(AbstractExpressionNode** root, int& nodeNumber, AbstractExpressionNode ***randomNode);
 
     void showTree() const;
     void showTreeRec(const AbstractExpressionNode* root) const;
+
+    static void swapNodes(AbstractExpressionNode*** nodeA, AbstractExpressionNode*** nodeB)
+    {
+        AbstractExpressionNode* temp = **nodeA;
+        **nodeA = **nodeB;
+        **nodeB = temp;
+    }
+
+public:
+    //Do not use, its a hack for random trees generation only
+    void setVariablesMap(const std::map<std::string, double>& newVarMap)
+    {
+        variablesMap = newVarMap;
+    }
+
+    static void crossOver(ExpressionTree &expTreeA,  ExpressionTree &expTreeB)
+    {
+        AbstractExpressionNode*** randA = expTreeA.getRandomNode();
+        AbstractExpressionNode*** randB = expTreeB.getRandomNode();
+        swapNodes(randA, randB);
+        delete randA;
+        delete randB;
+    }
 };
 
 #endif //EXPRESSIONTREE_H

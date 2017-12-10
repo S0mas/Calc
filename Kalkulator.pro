@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     CommandValidator.cpp \
     RandomNodeGenerator.cpp \
     KnownOperators.cpp \
-    GeneticAlgorithm.cpp
+    GeneticAlgorithm.cpp \
+    RandomTreeGenerator.cpp
 
 HEADERS += \
     ExpressionTree.h \
@@ -27,4 +28,5 @@ HEADERS += \
     ErrorsMsg.h \
     RandomNodeGenerator.h \
     KnownOperators.h \
-    GeneticAlgorithm.h
+    GeneticAlgorithm.h \
+    RandomTreeGenerator.h
