@@ -5,19 +5,18 @@
 
 GeneticAlgorithm::GeneticAlgorithm()
 {
-
-}
-
-void GeneticAlgorithm::process(const unsigned &populationSize, const unsigned &iterationNumber, const unsigned &crossOverProb, const unsigned &mutateProb)
-{
     loadDataFile();
     if(data.empty() || !checkData())
     {
         Logger::printError("Error while loading data or data is empty!");
         return;
     }
+}
 
+GeneticAlgorithm::Result GeneticAlgorithm::process(const unsigned &populationSize, const unsigned &iterationNumber, const unsigned &crossOverProb, const unsigned &mutateProb)
+{
     std::vector<ExpressionTree> population;
+    Logger::printInfo("Start.. (avg. 2 min)");
     initiate(populationSize, population);
     for(unsigned i = 0; i < iterationNumber; ++i)
     {
@@ -26,15 +25,22 @@ void GeneticAlgorithm::process(const unsigned &populationSize, const unsigned &i
         mutate(mutateProb, population);
     }
 
-    Logger::printInfo("Results:");
     int i = 0;
+    int best = 0;
     for(auto& tree : population)
     {
-        Logger::printInfo(std::to_string(i) + ". " + std::to_string(evaluateTree(tree)));
+        if(evaluateTree(tree) < evaluateTree(population[best]))
+            best = i;
         ++i;
     }
 
-    Logger::printInfo("End.");
+    Result result;
+
+    for(const std::string& str : population[best].toStringVec())
+        result.expression += str + " ";
+
+    result.value = evaluateTree(population[best]);
+    return result;
 }
 
 void GeneticAlgorithm::loadDataFile()
@@ -87,7 +93,7 @@ bool GeneticAlgorithm::checkData()
 void GeneticAlgorithm::initiate(const unsigned &populationSize, std::vector<ExpressionTree>& population)
 {
     for(unsigned i = 0; i < populationSize; ++i)
-        population.push_back(RandomTreeGenerator::generateRandomTree(2u, 1u, 6u));
+        population.push_back(RandomTreeGenerator::generateRandomTree(2, 1, 6));
 }
 
 void GeneticAlgorithm::select(const unsigned& populationSize, std::vector<ExpressionTree>& population)
@@ -106,9 +112,9 @@ ExpressionTree GeneticAlgorithm::selectBestFromRandTwo(std::vector<ExpressionTre
     return (evaluateTree(expTreesVec[rand1]) < evaluateTree(expTreesVec[rand2])) ? expTreesVec[rand1] : expTreesVec[rand2];
 }
 
-unsigned GeneticAlgorithm::evaluateTree(ExpressionTree &expTree)
+long double GeneticAlgorithm::evaluateTree(ExpressionTree &expTree)
 {
-    double evalTree = 0;
+    long double evalTree = 0;
     foreach (const std::vector<double>& values, data)
     {
         std::vector<double> variablesValues(values.begin(), values.end()-1);

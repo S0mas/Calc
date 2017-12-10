@@ -20,7 +20,6 @@ public:
                 child = nullptr;
             }
         }
-
     }
     virtual double getValue() const = 0;
     virtual std::string toString() const = 0;
