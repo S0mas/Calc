@@ -93,7 +93,7 @@ bool GeneticAlgorithm::checkData()
 void GeneticAlgorithm::initiate(const unsigned &populationSize, std::vector<ExpressionTree>& population)
 {
     for(unsigned i = 0; i < populationSize; ++i)
-        population.push_back(RandomTreeGenerator::generateRandomTree(2, 1, 6));
+        population.push_back(RandomTreeGenerator::generateRandomTree(2, 1, 3));
 }
 
 void GeneticAlgorithm::select(const unsigned& populationSize, std::vector<ExpressionTree>& population)
