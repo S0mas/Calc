@@ -23,13 +23,15 @@ public:
     double getResult() const;
     unsigned int getNumberOfVariables() const;
     std::vector<std::string> toStringVec() const;
-
+    std::string toString() const;
     void mutate();
+    unsigned getTreeSize() const;
 private:
     AbstractExpressionNode* root;
     std::map<std::string, double> variablesMap;
 
     void toStringVecRec(const AbstractExpressionNode* root, std::vector<std::string>& strVec) const;
+    void toStringRec(const AbstractExpressionNode* root, std::string& str) const;
     std::vector<AbstractExpressionNode*> translateStringVecToExpVec(const std::vector<std::string>& strVec) const;
     AbstractExpressionNode* getExpNode(const std::string& str) const;
     AbstractExpressionNode* getFulfillConstans() const;
@@ -41,17 +43,9 @@ private:
     void storeVariables();
     void storeVariablesRec(const AbstractExpressionNode* root); 
 
-    unsigned getTreeSize() const;
-    void getTreeSizeRec(const AbstractExpressionNode* root, unsigned& size) const;
-
-    void showAddresses() const;
-    void showAddressesRec(const AbstractExpressionNode* root) const;
-
     AbstractExpressionNode*** getRandomNode();
     void getRandomNodeRec(AbstractExpressionNode** root, int& nodeNumber, AbstractExpressionNode ***randomNode);
-
-    void showTree() const;
-    void showTreeRec(const AbstractExpressionNode* root) const;
+    void changeRandomNodeToRandomLeaf();
 
     static void swapNodes(AbstractExpressionNode*** nodeA, AbstractExpressionNode*** nodeB)
     {
@@ -60,8 +54,17 @@ private:
         **nodeB = temp;
     }
 
+
+    static void getTreeSizeRec(const AbstractExpressionNode* root, unsigned& size)
+    {
+        if(root)
+        {
+            ++size;
+            for(auto& child : root->childs)
+                getTreeSizeRec(child, size);
+        }
+    }
 public:
-    //Do not use, its a hack for random trees generation only
     void setVariablesMap(const std::map<std::string, double>& newVarMap)
     {
         variablesMap = newVarMap;
@@ -69,11 +72,26 @@ public:
 
     static void crossOver(ExpressionTree &expTreeA,  ExpressionTree &expTreeB)
     {
-        AbstractExpressionNode*** randA = expTreeA.getRandomNode();
-        AbstractExpressionNode*** randB = expTreeB.getRandomNode();
-        swapNodes(randA, randB);
-        delete randA;
-        delete randB;
+        bool crossed = false;
+
+        while(!crossed)
+        {
+            unsigned sizeOfNodeA = 0;
+            unsigned sizeOfNodeB = 0;
+            AbstractExpressionNode*** randA = expTreeA.getRandomNode();
+            AbstractExpressionNode*** randB = expTreeB.getRandomNode();
+            getTreeSizeRec(**randA, sizeOfNodeA);
+            getTreeSizeRec(**randB, sizeOfNodeB);
+
+            if(sizeOfNodeA < 7 && sizeOfNodeB < 7)
+            {
+                swapNodes(randA, randB);
+                crossed = true;
+            }
+
+            delete randA;
+            delete randB;
+        }
     }
 };
 

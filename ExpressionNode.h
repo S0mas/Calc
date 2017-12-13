@@ -23,6 +23,7 @@ public:
     }
     virtual double getValue() const = 0;
     virtual std::string toString() const = 0;
+    virtual std::string toStringTree() const = 0;
 
     std::vector<AbstractExpressionNode*> childs;
 };
@@ -31,16 +32,17 @@ public:
 class Constant : public AbstractExpressionNode
 {
 public:
-    Constant(const int& value)
+    Constant(const double& value)
         :  value(value) {}
 
     virtual ~Constant() {Logger::printDebug("Deleting Constant: " + toString());}
 
     virtual double getValue() const override            { return value; }
     virtual std::string toString() const override       { return std::to_string(value) ; }
+    virtual std::string toStringTree() const override   { return toString();}
 
 private:
-    const int value;
+    const double value;
 };
 
 //No childs
@@ -49,19 +51,20 @@ class Variable : public AbstractExpressionNode
 public:
     Variable(const std::string& name)
         :  name(name), value(1) {}
-    Variable(const std::string& name, int value)
+    Variable(const std::string& name, double value)
         :  name(name), value(value) {}
 
     virtual ~Variable() {Logger::printDebug("Deleting.. Variable: " + toString());}
 
     virtual double getValue() const override            { return value; }
     virtual std::string toString() const override       { return name; }
+    virtual std::string toStringTree() const override   { return toString();}
     std::string getName() const                         { return name; }
-    void setValue(const int& newValue)                  { value = newValue; }
+    void setValue(const double& newValue)               { value = newValue; }
 
 private:
     const std::string name;
-    int value;
+    double value;
 };
 
 
@@ -73,7 +76,6 @@ public:
 
     virtual ~AbstractOperatorNode() {}
     virtual std::string toString() const override       { return type; }
-
     const std::string type;
 };
 
@@ -89,6 +91,7 @@ public:
     virtual ~Operator1Arg() {Logger::printDebug("Deleting. Operator1: " + toString());}
 
     virtual double getValue() const override            { return KnownOperators::getKnownOperators()->getFunction1Arg(type)(childs[0]->getValue()); }
+    virtual std::string toStringTree() const override   { return toString() + " " + childs[0]->toStringTree();}
 };
 
 //2 childs
@@ -104,6 +107,7 @@ public:
     virtual ~Operator2Arg() {Logger::printDebug("Deleting.. Operator2: " + toString());}
 
     virtual double getValue() const override            { return KnownOperators::getKnownOperators()->getFunction2Args(type)(childs[0]->getValue(), childs[1]->getValue()); }
+    virtual std::string toStringTree() const override   { return toString() + " " + childs[0]->toStringTree() + " " + childs[1]->toStringTree();}
 };
 
 #endif // EXPRESSIONNODE_H

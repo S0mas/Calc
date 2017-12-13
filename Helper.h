@@ -7,6 +7,8 @@
 #include <vector>
 #include <stdlib.h>
 #include <cstdlib>
+#include <ctime>
+#include <QtGlobal>
 
 class Helper
 {
@@ -71,7 +73,7 @@ public:
 
     static inline unsigned getRandomNumber()
     {
-        return rand();
+        return qrand();
     }
 
     static inline std::vector<std::string> splitStringVector(std::vector<std::string>& full)

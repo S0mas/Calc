@@ -15,7 +15,7 @@ const std::string& RandomNodeGenerator::getRandomOperator2Args()
 AbstractExpressionNode* RandomNodeGenerator::getRandomVariable(const std::map<std::string, double>& variablesMap)
 {
     if(variablesMap.empty())
-        return new Constant(Helper::getRandomNumber()%10);
+        return new Constant(Helper::getRandomNumber()%10+1);
 
     unsigned position = Helper::getRandomNumber() % variablesMap.size();
     unsigned i = 0;
@@ -46,7 +46,7 @@ AbstractExpressionNode* RandomNodeGenerator::getRandomNode()
 AbstractExpressionNode* RandomNodeGenerator::getRandomLeaf(const std::map<std::string, double>& variablesMap)
 {
     if(Helper::getRandomNumber()%2)
-        return new Constant(Helper::getRandomNumber()%10);
+        return new Constant(Helper::getRandomNumber()%10 + 1);
     return getRandomVariable(variablesMap);
 }
 

@@ -16,8 +16,8 @@ KnownOperators::KnownOperators()
 
     KnownOperators::operators2ArgsFunctionMap.insert(std::make_pair<std::string, std::function<double(double, double)>>("+", std::plus<double>()));
     KnownOperators::operators2ArgsFunctionMap.insert(std::make_pair<std::string, std::function<double(double, double)>>("-", std::minus<double>()));
-    KnownOperators::operators2ArgsFunctionMap.insert(std::make_pair<std::string, std::function<double(double, double)>>("*", std::divides<double>()));
-    KnownOperators::operators2ArgsFunctionMap.insert(std::make_pair<std::string, std::function<double(double, double)>>("/", std::multiplies<double>()));
+    KnownOperators::operators2ArgsFunctionMap.insert(std::make_pair<std::string, std::function<double(double, double)>>("/", std::divides<double>()));
+    KnownOperators::operators2ArgsFunctionMap.insert(std::make_pair<std::string, std::function<double(double, double)>>("*", std::multiplies<double>()));
 }
 
 bool KnownOperators::isKnownOperator(const std::string& str) const

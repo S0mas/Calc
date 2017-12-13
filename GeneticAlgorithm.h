@@ -2,6 +2,7 @@
 #define GENETICALGORITHM_H
 
 #include "RandomTreeGenerator.h"
+#include "limits"
 
 struct Setup
 {
@@ -19,8 +20,12 @@ class GeneticAlgorithm
 public:
     struct Result
     {
+        Result() : expression(""), value(std::numeric_limits<double>::max()), choosenOne(false), setupMaxTreeSize(0) {}
+
         std::string expression;
-        long double value;
+        double value;
+        bool choosenOne;
+        unsigned setupMaxTreeSize;
     };
 
     GeneticAlgorithm();
@@ -33,17 +38,16 @@ private:
     void initiate(const unsigned& populationSize, std::vector<ExpressionTree>& population);
     void select(const unsigned& populationSize, std::vector<ExpressionTree>& population);
     ExpressionTree selectBestFromRandTwo(std::vector<ExpressionTree> &expTreesVec);
-    long double evaluateTree(ExpressionTree &expTree);
+    double evaluateTree(ExpressionTree &expTree);
     void crossOver(const unsigned& crossOverProb, std::vector<ExpressionTree> &expTreesVec);
     void crossOverTreesPair(std::pair<ExpressionTree, ExpressionTree> &expTreesPair);
     std::pair<ExpressionTree, ExpressionTree> withdrawTreesPair(std::vector<ExpressionTree> &expTreesVec);
     ExpressionTree withdrawRandTree(std::vector<ExpressionTree> &expTreesVec);
     void mutate(const unsigned& mutateProb, std::vector<ExpressionTree> &expTreesVec);
+    bool lookForGoldenChild(std::vector<ExpressionTree>& population, Result &result);
 
-    std::vector<std::vector<double>> data;
-
-
-
+    std::vector<std::vector<double>> dataValues;
+    std::vector<double> dataResults;
 };
 
 #endif // GENETICALGORITHM_H

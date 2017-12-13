@@ -125,12 +125,16 @@ void ExpressionTree::toStringVecRec(const AbstractExpressionNode* root, std::vec
     }
 }
 
+std::string ExpressionTree::toString() const
+{
+    return root->toStringTree();
+}
+
 AbstractExpressionNode*** ExpressionTree::getRandomNode()
 {
     AbstractExpressionNode*** randomNode = new AbstractExpressionNode**();
     int nodeNumber = Helper::getRandomNumber() % getTreeSize();
-    getRandomNodeRec(&root, nodeNumber, randomNode);
-
+    getRandomNodeRec(&root, nodeNumber, randomNode);   
     return randomNode;
 }
 
@@ -147,10 +151,27 @@ void ExpressionTree::getRandomNodeRec(AbstractExpressionNode** root, int& nodeNu
     }
 }
 
-void ExpressionTree::mutate()
+void ExpressionTree::changeRandomNodeToRandomLeaf()
 {
     AbstractExpressionNode*** randomNode = getRandomNode();
-    **randomNode = RandomNodeGenerator::getRandomLeafOrNode(variablesMap);
+    delete **randomNode;
+    **randomNode = RandomNodeGenerator::getRandomLeaf(variablesMap);
+}
+
+void ExpressionTree::mutate()
+{
+    unsigned maxSize = Helper::getRandomNumber()%30 + 30;
+    AbstractExpressionNode*** randomNode = getRandomNode();
+    delete **randomNode;
+
+    if(getTreeSize() < maxSize)
+        **randomNode = RandomNodeGenerator::getRandomLeafOrNode(variablesMap);
+    else
+    {
+        **randomNode = RandomNodeGenerator::getRandomLeaf(variablesMap);
+        changeRandomNodeToRandomLeaf();
+    }
+
     delete randomNode;
 }
 
@@ -231,46 +252,4 @@ unsigned ExpressionTree::getTreeSize() const
     unsigned size = 0;
     getTreeSizeRec(root, size);
     return size;
-}
-
-void ExpressionTree::getTreeSizeRec(const AbstractExpressionNode* root, unsigned& size) const
-{
-    if(root)
-    {
-        ++size;
-        for(auto& child : root->childs)
-            getTreeSizeRec(child, size);
-    }
-}
-
-void ExpressionTree::showAddresses() const
-{
-    showAddressesRec(root);
-}
-
-void ExpressionTree::showAddressesRec(const AbstractExpressionNode* root) const
-{
-    if(root)
-    {
-        Logger::printDebug( Helper::converAddressToString(static_cast<const void*>(&root)) + "---->" + Helper::converAddressToString(static_cast<const void*>(root)) + "---->" + root->toString());
-        for(auto& child : root->childs)
-            showAddressesRec(child);
-    }
-}
-
-void ExpressionTree::showTree() const
-{
-    std::cout << std::endl;
-    showTreeRec(root);
-    std::cout << std::endl;
-}
-
-void ExpressionTree::showTreeRec(const AbstractExpressionNode* root) const
-{
-    if(root)
-    {
-        std::cout << (root->toString() + " ");
-        for(auto& child : root->childs)
-            showTreeRec(child);
-    }
 }
