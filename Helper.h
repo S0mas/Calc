@@ -14,10 +14,29 @@ public:
 
     static inline bool constainsOnlyNumbers(const std::string& str)
     {
+        bool negative = false;
+        bool real = false;
+        bool firstChar = true;
+
         for(const char& sign : str)
         {
             if(!isdigit(sign))
+            {
+                //First char can be "-" for negative numbers (one per number)
+                if(firstChar && !negative && !real && sign == '-')
+                {
+                    negative = true;
+                    continue;
+                }
+                //All but first character can be "." or "," for real numbers (one per number)
+                if(!firstChar && !real && (sign == '.' || sign == ','))
+                {
+                    real = true;
+                    continue;
+                }
                 return false;
+            }
+            firstChar = false;
         }
 
        return true;

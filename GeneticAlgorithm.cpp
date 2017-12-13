@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
+#include <QString>
 
 GeneticAlgorithm::GeneticAlgorithm()
 {
@@ -13,16 +14,16 @@ GeneticAlgorithm::GeneticAlgorithm()
     }
 }
 
-GeneticAlgorithm::Result GeneticAlgorithm::process(const unsigned &populationSize, const unsigned &iterationNumber, const unsigned &crossOverProb, const unsigned &mutateProb)
+GeneticAlgorithm::Result GeneticAlgorithm::process(const Setup& setup)
 {
     std::vector<ExpressionTree> population;
     Logger::printInfo("Start.. (avg. 2 min)");
-    initiate(populationSize, population);
-    for(unsigned i = 0; i < iterationNumber; ++i)
+    initiate(setup.population, population);
+    for(unsigned i = 0; i < setup.iteration; ++i)
     {
-        select(populationSize, population);
-        crossOver(crossOverProb, population);
-        mutate(mutateProb, population);
+        select(setup.population, population);
+        crossOver(setup.crossChance, population);
+        mutate(setup.mutationChance, population);
     }
 
     int i = 0;
@@ -45,7 +46,7 @@ GeneticAlgorithm::Result GeneticAlgorithm::process(const unsigned &populationSiz
 
 void GeneticAlgorithm::loadDataFile()
 {
-    QFile file("C://Users//Somaso//Desktop//List3ZMPO//dane.txt");
+    QFile file("D://userdata//ksommerf//Desktop//Kalkulator2//dane.txt");
 
     if (!file.open(QIODevice::ReadOnly))
     {
@@ -55,7 +56,6 @@ void GeneticAlgorithm::loadDataFile()
 
     QTextStream in(&file);
     QRegExp rx("(\\;)");
-
     while (!in.atEnd())
     {
        QString line = in.readLine();
@@ -63,8 +63,11 @@ void GeneticAlgorithm::loadDataFile()
 
        std::vector<double> valuesVec;
 
-       foreach (const QString &str, list)
+       for(int i = 0; i < 3; ++i)
        {
+           QString str = list[i];
+           if(i%3 != 0)
+               str.remove(0, 1);
            bool ok = false;
            valuesVec.push_back(str.toDouble(&ok));
            if(!ok)

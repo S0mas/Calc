@@ -4,14 +4,18 @@
 #include "GeneticAlgorithm.h"
 #include <unistd.h>
 #include <fstream>
+#include <time.h>
+#include <cstdio>
+#include <vector>
 
 bool Logger::debugPrintsOn;
+
 
 void writeResult(const GeneticAlgorithm::Result& result, const std::string& setup)
 {
     std::ofstream file;
 
-    file.open("C://Users//Somaso//Desktop//List3ZMPO//results.txt", std::ios_base::app);
+    file.open("D://userdata//ksommerf//Desktop//Kalkulator2//results.txt", std::ios_base::app);
 
     std::string res = setup + " Result: " + std::to_string(result.value) + " Expression: " + result.expression + "\n";
     file << res;
@@ -21,53 +25,32 @@ void writeResult(const GeneticAlgorithm::Result& result, const std::string& setu
 int main(int argc, char *argv[])
 {
     std::srand(time(0));
-    sleep(4);
+    sleep(1);
     QCoreApplication a(argc, argv);
     //IExpressionTree calcTree;
     //calcTree.run();
     GeneticAlgorithm genAlg;
     GeneticAlgorithm::Result result;
+    std::vector<Setup> setups;
+    setups.push_back(Setup(50, 160, 25, 25, 0));
+    setups.push_back(Setup(50, 80, 25, 25, 1));
+    setups.push_back(Setup(40, 100, 25, 25, 2));
+    setups.push_back(Setup(40, 80, 25, 25, 3));
+    setups.push_back(Setup(40, 90, 25, 25, 4));
+    setups.push_back(Setup(60, 50, 40, 10, 5));
+    setups.push_back(Setup(60, 40, 15, 10, 6));
+    setups.push_back(Setup(60, 45, 10, 20, 7));
+    setups.push_back(Setup(50, 40, 30, 30, 8));
+    setups.push_back(Setup(50, 40, 40, 40, 9));
     while(true)
     {
-        result = genAlg.process(50, 300, 20, 10);
-        if(result.value < 0.01)
-            writeResult(result, "Setup:1");
-
-        result = genAlg.process(70, 450, 25, 20);
-        if(result.value < 0.01)
-            writeResult(result, "Setup:2");
-
-        result = genAlg.process(30, 900, 10, 5);
-        if(result.value < 0.01)
-            writeResult(result, "Setup:3");
-
-        result = genAlg.process(100, 300, 10, 15);
-        if(result.value < 0.01)
-            writeResult(result, "Setup:4");
-
-        result = genAlg.process(40, 600, 30, 8);
-        if(result.value < 0.01)
-            writeResult(result, "Setup:5");
-
-        result = genAlg.process(28, 1200, 20, 15);
-        if(result.value < 0.01)
-            writeResult(result, "Setup:6");
-
-        result = genAlg.process(20, 1500, 15, 8);
-        if(result.value < 0.01)
-            writeResult(result, "Setup:7");
-
-        result = genAlg.process(60, 400, 30, 20);
-        if(result.value < 0.01)
-            writeResult(result, "Setup:8");
-
-        result = genAlg.process(120, 500, 5, 15);
-        if(result.value < 0.01)
-            writeResult(result, "Setup:9");
-
-        result = genAlg.process(60, 600, 8, 16);
-        if(result.value < 0.01)
-            writeResult(result, "Setup:10");
+        for(auto& setup : setups)
+        {
+            result = genAlg.process(setup);
+            if(result.value < 0.01)
+                writeResult(result, "Setup:1");
+            std::cout << "Setup: "<< setup.id << " " << result.value << " Expression: " << result.expression << std::endl;
+        }
     }
 
     return a.exec();

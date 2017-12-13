@@ -3,6 +3,17 @@
 
 #include "RandomTreeGenerator.h"
 
+struct Setup
+{
+    Setup(unsigned pop, unsigned it, unsigned cross, unsigned mutate, int id)
+        : population(pop), iteration(it), crossChance(cross), mutationChance(mutate), id(id){}
+    unsigned population;
+    unsigned iteration;
+    unsigned crossChance;
+    unsigned mutationChance;
+    int id;
+};
+
 class GeneticAlgorithm
 {
 public:
@@ -14,7 +25,7 @@ public:
 
     GeneticAlgorithm();
 
-    Result process(const unsigned& populationSize, const unsigned& iterationNumber, const unsigned& crossOverProb, const unsigned& mutateProb);
+    Result process(const Setup& setup);
 
 private:
     void loadDataFile();
