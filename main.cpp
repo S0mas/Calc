@@ -8,15 +8,13 @@
 #include <cstdio>
 #include <vector>
 
-
 bool Logger::debugPrintsOn;
-
 
 void writeResult(const GeneticAlgorithm::Result& result, const std::string& setup)
 {
     std::ofstream file;
 
-    file.open("D://studiaINF//List3i4ZMPO//results.txt", std::ios_base::app);
+    file.open("D://userdata//ksommerf//Desktop//GeneticCalc//Calc//results.txt", std::ios_base::app);
 
     std::string res = setup + " Result: " + std::to_string(result.value) + " Expression: " + result.expression + "\n";
     file << res;
@@ -30,43 +28,59 @@ int main(int argc, char *argv[])
     //IExpressionTree calcTree;
     //calcTree.run();
 
-
     GeneticAlgorithm genAlg;
     GeneticAlgorithm::Result result;
     std::vector<Setup> setups;
-    setups.push_back(Setup(50, 50, 20, 10, 0));
-    setups.push_back(Setup(50, 50, 15, 10, 1));
-    setups.push_back(Setup(50, 50, 10, 10, 2));
-    setups.push_back(Setup(50, 70, 25, 20, 3));
-    setups.push_back(Setup(50, 70, 20, 15, 4));
-    setups.push_back(Setup(50, 70, 15, 10, 5));
-    setups.push_back(Setup(36, 60, 25, 20, 6));
-    setups.push_back(Setup(36, 60, 20, 15, 7));
-    setups.push_back(Setup(36, 60, 15, 10, 8));
-    setups.push_back(Setup(40, 40, 20, 15, 9));
+    //setups.push_back(Setup(40, 50, 10, 5, 0));
+    //setups.push_back(Setup(50, 50, 10, 5, 2));
+    //setups.push_back(Setup(50, 50, 5, 5, 3));
+    //setups.push_back(Setup(40, 40, 20, 15, 4));
+    //setups.push_back(Setup(40, 40, 15, 10, 5));
+    //setups.push_back(Setup(40, 40, 10, 5, 6));
+    //setups.push_back(Setup(40, 40, 5, 5, 7));
+    //setups.push_back(Setup(30, 30, 20, 15, 8));
+    //setups.push_back(Setup(30, 30, 15, 10, 9));
+    //setups.push_back(Setup(30, 30, 10, 5, 8));
+    //setups.push_back(Setup(30, 30, 5, 5, 9));
+
+    setups.push_back(Setup(46, 45, 10, 5, 1));
+    long startSingle = clock();
+    long startChoosenOne = clock();
+    long startGoodOne = clock();
+    std::cout<<"Start processing..";
     while(!result.choosenOne)
     {
         for(auto& setup : setups)
         {
             try
             {
+                std::cout<<".";
+                startSingle = clock();
+                qsrand(time(0));
                 result = genAlg.process(setup);
             }
             catch(...)
             {
-               Logger::printError("Dividing by 0 removing population.");
+               Logger::printDebug("Dividing by 0 removing population.");
                break;
             }
-
-            if(result.value < 0.30)
+            if(result.value > 0.000001 && result.value < 0.30)
             {
-                writeResult(result, "Setup:" + setup.toString() + " ");
+                long stopGoodOne = clock();
 
+                Logger::printInfo("GoodOne: " + setup.toString() + " " + result.toString());
+                Logger::printInfo("Time:" + std::to_string(stopGoodOne-startGoodOne) + "ms (single: " + std::to_string(stopGoodOne - startSingle) + "ms)");
+                writeResult(result, setup.toString() + " ");
+                startGoodOne = clock();
             }
-            std::cout << "Setup: "<< setup.toString() << " Value:" << result.value << " Expression: " << result.expression << std::endl;
-            if(result.choosenOne)
+            else if(result.choosenOne)
+            {
+                Logger::printInfo("ChoosenOne: " + setup.toString() + " " + result.toString());
                 break;
+            }
         }
     }
+    long stopChoosenOne = clock();
+    Logger::printInfo("Time:" + std::to_string(stopChoosenOne-startChoosenOne) + "ms");
     return a.exec();
 }

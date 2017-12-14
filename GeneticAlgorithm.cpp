@@ -21,8 +21,7 @@ GeneticAlgorithm::Result GeneticAlgorithm::process(const Setup& setup)
     Result result;
     bool foundChoosenOne = false;
     std::vector<ExpressionTree> population;
-    population.reserve(setup.population*1.5);
-
+    population.reserve(setup.population*2);
     initiate(setup.population, population);
     if(!population.empty())
     {
@@ -31,12 +30,10 @@ GeneticAlgorithm::Result GeneticAlgorithm::process(const Setup& setup)
             foundChoosenOne = lookForGoldenChild(population, result);
             if(foundChoosenOne)
                 break;
-
             select(setup.population, population);
             crossOver(setup.crossChance, population);
             mutate(setup.mutationChance, population);
         }
-
         //Find best result
         if(!foundChoosenOne)
         {
@@ -81,7 +78,7 @@ bool GeneticAlgorithm::lookForGoldenChild(std::vector<ExpressionTree>& populatio
 
 void GeneticAlgorithm::loadDataFile()
 {
-    QFile file("D://studiaINF//List3i4ZMPO//dane.txt");
+    QFile file("D://userdata//ksommerf//Desktop//GeneticCalc//Calc//dane7.txt");
 
     if (!file.open(QIODevice::ReadOnly))
     {
@@ -128,16 +125,16 @@ void GeneticAlgorithm::initiate(const unsigned &populationSize, std::vector<Expr
     unsigned varsNumb = 2;
     unsigned minNodesNumber = 1;
     unsigned maxNodesNumber = 3;
-    population.reserve(populationSize*1.5);
+    population.reserve(populationSize*2);
 
     for(unsigned i = 0; i < populationSize; ++i)
-        population.push_back(std::move(RandomTreeGenerator::generateRandomTree(varsNumb, minNodesNumber, maxNodesNumber)));
+        population.push_back(RandomTreeGenerator::generateRandomTree(varsNumb, minNodesNumber, maxNodesNumber));
 }
 
 void GeneticAlgorithm::select(const unsigned& populationSize, std::vector<ExpressionTree>& population)
 {
     std::vector<ExpressionTree> newParents;
-    newParents.reserve(populationSize*1.5);
+    newParents.reserve(populationSize*2);
 
     for(unsigned i = 0; i < populationSize; ++i)
         newParents.push_back(selectBestFromRandTwo(population));
@@ -172,7 +169,7 @@ double GeneticAlgorithm::evaluateTree(ExpressionTree &expTree)
 void GeneticAlgorithm::crossOver(const unsigned& crossOverProb, std::vector<ExpressionTree>& population)
 {
     std::vector<ExpressionTree> childrensPopulation;
-    childrensPopulation.reserve(population.size()*1.5);
+    childrensPopulation.reserve(population.size()*2);
 
     while(!population.empty())
     {

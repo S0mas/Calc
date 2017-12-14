@@ -167,15 +167,14 @@ void ExpressionTree::mutate()
 {
     unsigned maxSize = Helper::getRandomNumber()%30 + 30;
     AbstractExpressionNode*** randomNode = getRandomNode();
+
     delete **randomNode;
+    **randomNode = nullptr;
 
     if(getTreeSize() < maxSize)
         **randomNode = RandomNodeGenerator::getRandomLeafOrNode(variablesMap);
     else
-    {
         **randomNode = RandomNodeGenerator::getRandomLeaf(variablesMap);
-        changeRandomNodeToRandomLeaf();
-    }
 
     delete randomNode;
 }

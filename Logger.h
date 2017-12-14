@@ -12,7 +12,7 @@ public:
 
     static bool debugPrintsOn;
 private:
-    static void printLog(const std::string& msg)        { std::cout << msg << std::endl; }
+    static void printLog(const std::string& msg)        { std::cout << std::endl << msg << std::endl; }
 
     Logger(){}
 };

@@ -16,7 +16,7 @@ struct Setup
 
     std::string toString()
     {
-        return "population:" + std::to_string(population) + " iteration:" + std::to_string(iteration)
+        return "Setup: population:" + std::to_string(population) + " iteration:" + std::to_string(iteration)
                 + " crossChance:" + std::to_string(crossChance) + " mutationChance:" + std::to_string(mutationChance);
     }
 };
@@ -31,6 +31,10 @@ public:
         std::string expression;
         double value;
         bool choosenOne;
+        std::string toString()
+        {
+            return std::string("Result: Value "+std::to_string(value)+" Expression: "+expression);
+        }
     };
 
     GeneticAlgorithm();
