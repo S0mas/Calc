@@ -6,6 +6,11 @@ ExpressionTree::ExpressionTree(const ExpressionTree& other) : root(nullptr)
     createExpTree(other.toStringVec());
 }
 
+ExpressionTree::ExpressionTree(ExpressionTree&& other) : root(other.root), variablesMap(other.variablesMap)
+{
+    other.root = nullptr;
+}
+
 ExpressionTree::~ExpressionTree()
 {
     clearTree();
@@ -52,9 +57,9 @@ void ExpressionTree::setVariablesValues(const std::vector<double> &valuesVec)
     if(valuesVec.size() == variablesMap.size())
     {
         std::vector<double>::const_iterator it = valuesVec.begin();
-        for(auto& pair : variablesMap)
-            pair.second = *it++;
 
+        for(auto& pair : variablesMap)
+             pair.second = *it++;
         updateVariablesValuesInExpTree();
     }
 }
@@ -222,7 +227,7 @@ void ExpressionTree::updateVariablesValuesInExpTreeRec(AbstractExpressionNode* r
 {
     if(root)
     {
-        if(typeid(*root) == typeid(Variable))
+        if(root->isVariable())
             dynamic_cast<Variable*>(root)->setValue(variablesMap[dynamic_cast<Variable*>(root)->getName()]);
 
         for(auto& child : root->childs)

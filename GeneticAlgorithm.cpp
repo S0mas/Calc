@@ -26,29 +26,17 @@ GeneticAlgorithm::Result GeneticAlgorithm::process(const Setup& setup)
     initiate(setup.population, population);
     if(!population.empty())
     {
-        double selectTime = 0;
-        double crossTime = 0;
-        double muatateTime = 0;
-
         for(unsigned i = 0; i < setup.iteration; ++i)
         {
             foundChoosenOne = lookForGoldenChild(population, result);
             if(foundChoosenOne)
                 break;
-            clock_t p1 = clock();
-            select(setup.population, population);
-            clock_t p2 = clock();
-            crossOver(setup.crossChance, population);
-            clock_t p3 = clock();
-            mutate(setup.mutationChance, population);
-            clock_t p4 = clock();
 
-            selectTime +=p2-p1;
-            crossTime += p3-p2;
-            muatateTime += p4-p3;
+            select(setup.population, population);
+            crossOver(setup.crossChance, population);
+            mutate(setup.mutationChance, population);
         }
-        Logger::printInfo("Iteration:"+ std::to_string(setup.iteration) + " Times: Select|cross|mutate: "
-                          + std::to_string(selectTime)+"|" +std::to_string(crossTime)+"|" +std::to_string(muatateTime));
+
         //Find best result
         if(!foundChoosenOne)
         {
@@ -60,8 +48,6 @@ GeneticAlgorithm::Result GeneticAlgorithm::process(const Setup& setup)
                 double temp = evaluateTree(population[i]);
                 if(temp < bestResult)
                     bestResult = temp;
-                if(result.setupMaxTreeSize < population[i].getTreeSize())
-                    result.setupMaxTreeSize = population[i].getTreeSize();
             }
 
             result.expression = population[bestId].toString();
@@ -139,31 +125,24 @@ void GeneticAlgorithm::loadDataFile()
 
 void GeneticAlgorithm::initiate(const unsigned &populationSize, std::vector<ExpressionTree>& population)
 {
+    unsigned varsNumb = 2;
+    unsigned minNodesNumber = 1;
+    unsigned maxNodesNumber = 3;
     population.reserve(populationSize*1.5);
+
     for(unsigned i = 0; i < populationSize; ++i)
-        population.push_back(RandomTreeGenerator::generateRandomTree(2, 1, 3));
+        population.push_back(std::move(RandomTreeGenerator::generateRandomTree(varsNumb, minNodesNumber, maxNodesNumber)));
 }
 
 void GeneticAlgorithm::select(const unsigned& populationSize, std::vector<ExpressionTree>& population)
 {
-    unsigned maxTreeSize = 0;
     std::vector<ExpressionTree> newParents;
     newParents.reserve(populationSize*1.5);
-    //clock_t p1 = clock();
+
     for(unsigned i = 0; i < populationSize; ++i)
-    {
-       //clock_t p1 = clock();
-       newParents.push_back(selectBestFromRandTwo(population));
-       if(maxTreeSize < newParents.back().getTreeSize())
-           maxTreeSize = newParents.back().getTreeSize();
-       //clock_t p2 = clock();
-       //Logger::printInfo(" TimesSelectBestFromRandTwo: " + std::to_string(p2-p1));
-    }
-    //clock_t p2 = clock();
+        newParents.push_back(selectBestFromRandTwo(population));
+
     std::swap(population, newParents);
-    Logger::printInfo("MaxTreeSize in this selection is: " + std::to_string(maxTreeSize));
-    //clock_t p3 = clock();
-    //Logger::printInfo(" TimesSelect: push_back|copy: " + std::to_string(p2-p1)+"|" +std::to_string(p3-p2));
 }
 
 ExpressionTree GeneticAlgorithm::selectBestFromRandTwo(std::vector<ExpressionTree>& expTreesVec)
@@ -171,18 +150,20 @@ ExpressionTree GeneticAlgorithm::selectBestFromRandTwo(std::vector<ExpressionTre
     unsigned rand1 = Helper::getRandomNumber()%expTreesVec.size();
     unsigned rand2 = Helper::getRandomNumber()%expTreesVec.size();
 
-    return (evaluateTree(expTreesVec[rand1]) < evaluateTree(expTreesVec[rand2])) ? expTreesVec[rand1] : expTreesVec[rand2];
+    return ( evaluateTree(expTreesVec[rand1]) < evaluateTree(expTreesVec[rand2])) ? expTreesVec[rand1] : expTreesVec[rand2];
 }
 
 double GeneticAlgorithm::evaluateTree(ExpressionTree &expTree)
 {
     double evalTree = 0;
+
     for(unsigned i = 0; i < dataValues.size(); ++i)
     {
         expTree.setVariablesValues(dataValues[i]);
-        evalTree += pow(dataResults[i] - expTree.getResult(), 2);
+        double result = expTree.getResult();
+        evalTree += pow(dataResults[i] - result, 2);
 
-        if(std::isnan(expTree.getResult()))
+        if(std::isnan(result))
            throw std::exception();
     }
     return evalTree;
@@ -198,8 +179,8 @@ void GeneticAlgorithm::crossOver(const unsigned& crossOverProb, std::vector<Expr
         std::pair<ExpressionTree, ExpressionTree> expTreePair = std::move(withdrawTreesPair(population));
         if(Helper::getRandomNumber()%101 < crossOverProb)
             crossOverTreesPair(expTreePair);
-        childrensPopulation.push_back(expTreePair.first);
-        childrensPopulation.push_back(expTreePair.second);
+        childrensPopulation.push_back(std::move(expTreePair.first));
+        childrensPopulation.push_back(std::move(expTreePair.second));
     }
     std::swap(population, childrensPopulation);
 }
@@ -211,13 +192,13 @@ void GeneticAlgorithm::crossOverTreesPair(std::pair<ExpressionTree, ExpressionTr
 
 std::pair<ExpressionTree, ExpressionTree> GeneticAlgorithm::withdrawTreesPair(std::vector<ExpressionTree> &expTreesVec)
 {
-    return std::make_pair(withdrawRandTree(expTreesVec), withdrawRandTree(expTreesVec));
+    return std::make_pair(std::move(withdrawRandTree(expTreesVec)), std::move(withdrawRandTree(expTreesVec)));
 }
 
 ExpressionTree GeneticAlgorithm::withdrawRandTree(std::vector<ExpressionTree> &expTreesVec)
 {
     unsigned rand = Helper::getRandomNumber()%expTreesVec.size();
-    ExpressionTree randTree = expTreesVec[rand];
+    ExpressionTree randTree = std::move(expTreesVec[rand]);
     expTreesVec.erase(expTreesVec.begin()+rand);
 
     return randTree;

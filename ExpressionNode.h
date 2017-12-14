@@ -24,6 +24,7 @@ public:
     virtual double getValue() const = 0;
     virtual std::string toString() const = 0;
     virtual std::string toStringTree() const = 0;
+    virtual bool isVariable() const = 0;
 
     std::vector<AbstractExpressionNode*> childs;
 };
@@ -40,6 +41,7 @@ public:
     virtual double getValue() const override            { return value; }
     virtual std::string toString() const override       { return std::to_string(value) ; }
     virtual std::string toStringTree() const override   { return toString();}
+    virtual bool isVariable() const override            { return false;}
 
 private:
     const double value;
@@ -61,6 +63,7 @@ public:
     virtual std::string toStringTree() const override   { return toString();}
     std::string getName() const                         { return name; }
     void setValue(const double& newValue)               { value = newValue; }
+    virtual bool isVariable() const override            { return true;}
 
 private:
     const std::string name;
@@ -76,6 +79,7 @@ public:
 
     virtual ~AbstractOperatorNode() {}
     virtual std::string toString() const override       { return type; }
+    virtual bool isVariable() const override            { return false;}
     const std::string type;
 };
 

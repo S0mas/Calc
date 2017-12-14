@@ -11,6 +11,7 @@ friend class RandomTreeGenerator;
 public:
     ExpressionTree() : root(nullptr) {}
     ExpressionTree(const ExpressionTree& other);
+    ExpressionTree(ExpressionTree&& other);
     ~ExpressionTree();
 
     void operator=(const ExpressionTree& other);
@@ -53,7 +54,6 @@ private:
         **nodeA = **nodeB;
         **nodeB = temp;
     }
-
 
     static void getTreeSizeRec(const AbstractExpressionNode* root, unsigned& size)
     {

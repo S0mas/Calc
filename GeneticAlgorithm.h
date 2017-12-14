@@ -13,6 +13,12 @@ struct Setup
     unsigned crossChance;
     unsigned mutationChance;
     int id;
+
+    std::string toString()
+    {
+        return "population:" + std::to_string(population) + " iteration:" + std::to_string(iteration)
+                + " crossChance:" + std::to_string(crossChance) + " mutationChance:" + std::to_string(mutationChance);
+    }
 };
 
 class GeneticAlgorithm
@@ -20,12 +26,11 @@ class GeneticAlgorithm
 public:
     struct Result
     {
-        Result() : expression(""), value(std::numeric_limits<double>::max()), choosenOne(false), setupMaxTreeSize(0) {}
+        Result() : expression(""), value(std::numeric_limits<double>::max()), choosenOne(false) {}
 
         std::string expression;
         double value;
         bool choosenOne;
-        unsigned setupMaxTreeSize;
     };
 
     GeneticAlgorithm();
