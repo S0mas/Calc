@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
         data.dataValues.clear();
         loadDataFile(fileName, data);
         result.choosenOne = false;
+        std::cout<<std::endl<<std::endl<<std::endl<<std::endl;
         Logger::printInfo("File: " + fileName.toStdString() + " - Start processing..");
         long startSingle = clock();
         long startChoosenOne = clock();
