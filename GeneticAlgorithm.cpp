@@ -5,19 +5,12 @@
 #include <QString>
 #include <cmath>
 #include <exception>
+#include <QDir>
 
-GeneticAlgorithm::GeneticAlgorithm()
+GeneticAlgorithm::Result GeneticAlgorithm::process(const Setup& setup, Data &data)
 {
-    loadDataFile();
-    if(dataValues.empty() || dataResults.empty() || dataValues.size() != dataResults.size())
-    {
-        Logger::printError("Error while loading data or data is empty!");
-        return;
-    }
-}
-
-GeneticAlgorithm::Result GeneticAlgorithm::process(const Setup& setup)
-{
+    dataValues = data.dataValues;
+    dataResults = data.dataResults;
     Result result;
     bool foundChoosenOne = false;
     std::vector<ExpressionTree> population;
@@ -57,7 +50,7 @@ GeneticAlgorithm::Result GeneticAlgorithm::process(const Setup& setup)
     return result;
 }
 
-bool GeneticAlgorithm::lookForGoldenChild(std::vector<ExpressionTree>& population, Result& result)
+bool GeneticAlgorithm::lookForGoldenChild(std::vector<ExpressionTree>& population, Result& result) const
 {
     bool found = false;
     for(auto& tree : population)
@@ -65,7 +58,7 @@ bool GeneticAlgorithm::lookForGoldenChild(std::vector<ExpressionTree>& populatio
         double temp = evaluateTree(tree);
         if( temp < 0.000001)
         {
-            Logger::printInfo("Found choosen one!");
+            Logger::printInfo("Found ChoosenOne!");
             result.value = temp;
             result.expression = tree.toString();
             result.choosenOne = true;
@@ -76,51 +69,8 @@ bool GeneticAlgorithm::lookForGoldenChild(std::vector<ExpressionTree>& populatio
     return found;
 }
 
-void GeneticAlgorithm::loadDataFile()
-{
-    QFile file("D://userdata//ksommerf//Desktop//GeneticCalc//Calc//dane7.txt");
 
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        Logger::printError("Opening file error!");
-        return;
-    }
-
-    QTextStream in(&file);
-    QRegExp rx("(\\;)");
-    while (!in.atEnd())
-    {
-       QString line = in.readLine();
-       QStringList list = line.split(rx);
-
-       std::vector<double> valuesVec;
-
-       for(int i = 0; i < 3; ++i)
-       {
-           QString str = list[i];
-           if(i%3 != 0)
-               str.remove(0, 1);
-
-           bool ok = false;
-           if(i%3 != 2)
-               valuesVec.push_back(str.toDouble(&ok));
-           else
-               dataResults.push_back(str.toDouble(&ok));
-
-           if(!ok)
-           {
-               qDebug() << str;
-               Logger::printError("Error while casting to double!");
-               return;
-           }
-       }
-       dataValues.push_back(valuesVec);
-    }
-
-    return;
-}
-
-void GeneticAlgorithm::initiate(const unsigned &populationSize, std::vector<ExpressionTree>& population)
+void GeneticAlgorithm::initiate(const unsigned &populationSize, std::vector<ExpressionTree>& population) const
 {
     unsigned varsNumb = 2;
     unsigned minNodesNumber = 1;
@@ -131,7 +81,7 @@ void GeneticAlgorithm::initiate(const unsigned &populationSize, std::vector<Expr
         population.push_back(RandomTreeGenerator::generateRandomTree(varsNumb, minNodesNumber, maxNodesNumber));
 }
 
-void GeneticAlgorithm::select(const unsigned& populationSize, std::vector<ExpressionTree>& population)
+void GeneticAlgorithm::select(const unsigned& populationSize, std::vector<ExpressionTree>& population) const
 {
     std::vector<ExpressionTree> newParents;
     newParents.reserve(populationSize*2);
@@ -142,7 +92,7 @@ void GeneticAlgorithm::select(const unsigned& populationSize, std::vector<Expres
     std::swap(population, newParents);
 }
 
-ExpressionTree GeneticAlgorithm::selectBestFromRandTwo(std::vector<ExpressionTree>& expTreesVec)
+ExpressionTree GeneticAlgorithm::selectBestFromRandTwo(std::vector<ExpressionTree>& expTreesVec) const
 {
     unsigned rand1 = Helper::getRandomNumber()%expTreesVec.size();
     unsigned rand2 = Helper::getRandomNumber()%expTreesVec.size();
@@ -150,7 +100,7 @@ ExpressionTree GeneticAlgorithm::selectBestFromRandTwo(std::vector<ExpressionTre
     return ( evaluateTree(expTreesVec[rand1]) < evaluateTree(expTreesVec[rand2])) ? expTreesVec[rand1] : expTreesVec[rand2];
 }
 
-double GeneticAlgorithm::evaluateTree(ExpressionTree &expTree)
+double GeneticAlgorithm::evaluateTree(ExpressionTree &expTree) const
 {
     double evalTree = 0;
 
@@ -166,14 +116,14 @@ double GeneticAlgorithm::evaluateTree(ExpressionTree &expTree)
     return evalTree;
 }
 
-void GeneticAlgorithm::crossOver(const unsigned& crossOverProb, std::vector<ExpressionTree>& population)
+void GeneticAlgorithm::crossOver(const unsigned& crossOverProb, std::vector<ExpressionTree>& population) const
 {
     std::vector<ExpressionTree> childrensPopulation;
     childrensPopulation.reserve(population.size()*2);
 
     while(!population.empty())
     {
-        std::pair<ExpressionTree, ExpressionTree> expTreePair = std::move(withdrawTreesPair(population));
+        std::pair<ExpressionTree, ExpressionTree> expTreePair = withdrawTreesPair(population);
         if(Helper::getRandomNumber()%101 < crossOverProb)
             crossOverTreesPair(expTreePair);
         childrensPopulation.push_back(std::move(expTreePair.first));
@@ -182,17 +132,17 @@ void GeneticAlgorithm::crossOver(const unsigned& crossOverProb, std::vector<Expr
     std::swap(population, childrensPopulation);
 }
 
-void GeneticAlgorithm::crossOverTreesPair(std::pair<ExpressionTree, ExpressionTree> &expTreesPair)
+void GeneticAlgorithm::crossOverTreesPair(std::pair<ExpressionTree, ExpressionTree> &expTreesPair) const
 {
     ExpressionTree::crossOver(std::get<0>(expTreesPair), std::get<1>(expTreesPair));
 }
 
-std::pair<ExpressionTree, ExpressionTree> GeneticAlgorithm::withdrawTreesPair(std::vector<ExpressionTree> &expTreesVec)
+std::pair<ExpressionTree, ExpressionTree> GeneticAlgorithm::withdrawTreesPair(std::vector<ExpressionTree> &expTreesVec) const
 {
-    return std::make_pair(std::move(withdrawRandTree(expTreesVec)), std::move(withdrawRandTree(expTreesVec)));
+    return std::make_pair(withdrawRandTree(expTreesVec), withdrawRandTree(expTreesVec));
 }
 
-ExpressionTree GeneticAlgorithm::withdrawRandTree(std::vector<ExpressionTree> &expTreesVec)
+ExpressionTree GeneticAlgorithm::withdrawRandTree(std::vector<ExpressionTree> &expTreesVec) const
 {
     unsigned rand = Helper::getRandomNumber()%expTreesVec.size();
     ExpressionTree randTree = std::move(expTreesVec[rand]);
@@ -201,7 +151,7 @@ ExpressionTree GeneticAlgorithm::withdrawRandTree(std::vector<ExpressionTree> &e
     return randTree;
 }
 
-void GeneticAlgorithm::mutate(const unsigned& mutateProb, std::vector<ExpressionTree>& expTreesVec)
+void GeneticAlgorithm::mutate(const unsigned& mutateProb, std::vector<ExpressionTree>& expTreesVec) const
 {
     for(unsigned i = 0; i < expTreesVec.size(); ++i)
     {

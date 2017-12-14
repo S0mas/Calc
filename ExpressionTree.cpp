@@ -243,7 +243,7 @@ void ExpressionTree::storeVariablesRec(const AbstractExpressionNode* root)
 {
     if(root)
     {
-        if(typeid(*root) == typeid(Variable))
+        if(root->isVariable())
             variablesMap.insert(std::make_pair<std::string, int>(dynamic_cast<const Variable*>(root)->getName(), dynamic_cast<const Variable*>(root)->getValue()));
 
         for(auto& child : root->childs)
