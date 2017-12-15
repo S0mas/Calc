@@ -16,7 +16,8 @@ public:
 
     void operator=(const ExpressionTree& other);
     void operator=(ExpressionTree&& other);
-    void createExpTree(const std::vector<std::string>& strVec);
+    void swap(ExpressionTree& left, ExpressionTree& right);
+    void createTree(const std::vector<std::string>& strVec);
     void setVariablesValues(const std::vector<double>& valuesVec);
 
     ExpressionTree operator+(const ExpressionTree& other) const;
@@ -29,24 +30,25 @@ public:
     unsigned getTreeSize() const;
 private:
     AbstractExpressionNode* root;
-    std::map<std::string, double> variablesMap;
+    std::map<const std::string, double> variablesMap;
 
     void toStringVecRec(const AbstractExpressionNode* root, std::vector<std::string>& strVec) const;
     void toStringRec(const AbstractExpressionNode* root, std::string& str) const;
     std::vector<AbstractExpressionNode*> translateStringVecToExpVec(const std::vector<std::string>& strVec) const;
     AbstractExpressionNode* getExpNode(const std::string& str) const;
-    AbstractExpressionNode* getFulfillConstans() const;
+    AbstractExpressionNode* getFulfillConstant() const;
 
     void clearTree();
-    void createExpTreeRec(AbstractExpressionNode** root, std::vector<AbstractExpressionNode*>& expVec);
-    void updateVariablesValuesInExpTree();
-    void updateVariablesValuesInExpTreeRec(AbstractExpressionNode* root);
-    void storeVariables();
-    void storeVariablesRec(const AbstractExpressionNode* root); 
+    std::map<const std::string, double> getVariablesMap() const;
+    void fillVariablesMap();
+    void fillVariablesMapRec(const AbstractExpressionNode* root);
+    void updateVarsValues(const std::vector<double>& variableValues);
+    void updateVarsValuesRec(AbstractExpressionNode* root);
 
     AbstractExpressionNode*** getRandomNode();
-    void getRandomNodeRec(AbstractExpressionNode** root, int& nodeNumber, AbstractExpressionNode ***randomNode);
+    void getRandomNodeRec(AbstractExpressionNode** root, unsigned& nodeNumber, AbstractExpressionNode ***randomNode);
     void changeRandomNodeToRandomLeaf();
+    AbstractExpressionNode* createNode(std::vector<std::string>::const_iterator &it, const std::vector<std::string>::const_iterator &end) const;
 
     static void swapNodes(AbstractExpressionNode*** nodeA, AbstractExpressionNode*** nodeB)
     {
@@ -60,16 +62,11 @@ private:
         if(root)
         {
             ++size;
-            for(auto& child : root->childs)
+            for(auto& child : root->getChilds())
                 getTreeSizeRec(child, size);
         }
     }
 public:
-    void setVariablesMap(const std::map<std::string, double>& newVarMap)
-    {
-        variablesMap = newVarMap;
-    }
-
     static void crossOver(ExpressionTree &expTreeA,  ExpressionTree &expTreeB)
     {
         bool crossed = false;

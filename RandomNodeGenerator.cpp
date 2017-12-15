@@ -12,7 +12,7 @@ const std::string& RandomNodeGenerator::getRandomOperator2Args()
     return operators[Helper::getRandomNumber()%operators.size()];
 }
 
-AbstractExpressionNode* RandomNodeGenerator::getRandomVariable(const std::map<std::string, double>& variablesMap)
+AbstractExpressionNode* RandomNodeGenerator::getRandomVariable(const std::map<const std::string, double>& variablesMap)
 {
     if(variablesMap.empty())
         return new Constant(Helper::getRandomNumber()%10+1);
@@ -29,9 +29,9 @@ AbstractExpressionNode* RandomNodeGenerator::getRandomVariable(const std::map<st
     return nullptr;//cant reach
 }
 
-AbstractExpressionNode* RandomNodeGenerator::fillNode(AbstractExpressionNode* nodeToFill, const std::map<std::string, double>& variablesMap)
+AbstractExpressionNode* RandomNodeGenerator::fillNode(AbstractExpressionNode* nodeToFill, const std::map<const std::string, double>& variablesMap)
 {
-    for(auto& child : nodeToFill->childs)
+    for(auto& child : nodeToFill->getChilds())
         child = getRandomLeaf(variablesMap);
     return nodeToFill;
 }
@@ -39,18 +39,18 @@ AbstractExpressionNode* RandomNodeGenerator::fillNode(AbstractExpressionNode* no
 AbstractExpressionNode* RandomNodeGenerator::getRandomNode()
 {
     if(Helper::getRandomNumber()%2)
-        return new Operator1Arg(getRandomOperator1Arg());
-    return new Operator2Arg(getRandomOperator2Args());
+        return new Operator1Arg(getRandomOperator1Arg(), getRandomNode());
+    return new Operator2Arg(getRandomOperator2Args(), getRandomNode(), getRandomNode());
 }
 
-AbstractExpressionNode* RandomNodeGenerator::getRandomLeaf(const std::map<std::string, double>& variablesMap)
+AbstractExpressionNode* RandomNodeGenerator::getRandomLeaf(const std::map<const std::string, double>& variablesMap)
 {
     if(Helper::getRandomNumber()%2)
         return new Constant(Helper::getRandomNumber()%10 + 1);
     return getRandomVariable(variablesMap);
 }
 
-AbstractExpressionNode* RandomNodeGenerator::getRandomLeafOrNode(const std::map<std::string, double> &variablesMap)
+AbstractExpressionNode* RandomNodeGenerator::getRandomLeafOrNode(const std::map<const std::string, double>& variablesMap)
 {
     if(Helper::getRandomNumber()%2)
        return fillNode(getRandomNode(), variablesMap);

@@ -7,14 +7,14 @@
 class RandomNodeGenerator
 {
 public:
-    static AbstractExpressionNode* getRandomLeafOrNode(const std::map<std::string, double>& variablesMap);
+    static AbstractExpressionNode* getRandomLeafOrNode(const std::map<const std::string, double>& variablesMap);
     static AbstractExpressionNode* getRandomNode();
-    static AbstractExpressionNode* getRandomLeaf(const std::map<std::string, double>& variablesMap);
+    static AbstractExpressionNode* getRandomLeaf(const std::map<const std::string, double>& variablesMap);
 private:
     static const std::string& getRandomOperator1Arg();
     static const std::string& getRandomOperator2Args();
-    static AbstractExpressionNode* getRandomVariable(const std::map<std::string, double>& variablesMap);
-    static AbstractExpressionNode* fillNode(AbstractExpressionNode* nodeToFill, const std::map<std::string, double>& variablesMap);
+    static AbstractExpressionNode* getRandomVariable(const std::map<const std::string, double> &variablesMap);
+    static AbstractExpressionNode* fillNode(AbstractExpressionNode* nodeToFill, const std::map<const std::string, double>& variablesMap);
 
 };
 

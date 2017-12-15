@@ -71,7 +71,7 @@ void IExpressionTree::processCommand(std::vector<std::string>& strVec)
 
 void IExpressionTree::commandEnter(const std::vector<std::string>& strVec)
 {
-    expTree.createExpTree(strVec);
+    expTree.createTree(strVec);
     wasExprFixed(strVec, expTree.toStringVec());
     commandPrint();
 }
@@ -79,7 +79,7 @@ void IExpressionTree::commandEnter(const std::vector<std::string>& strVec)
 void IExpressionTree::commandJoin(const std::vector<std::string>& strVec)
 {
     ExpressionTree tempTree;
-    tempTree.createExpTree(strVec);
+    tempTree.createTree(strVec);
     wasExprFixed(strVec, tempTree.toStringVec());
     expTree = expTree + tempTree;
     commandPrint();
