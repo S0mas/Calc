@@ -1,7 +1,7 @@
 QT += core
 QT -= gui
 
-CONFIG += c++17 -O3
+CONFIG += c++17
 
 TARGET = Kalkulator
 CONFIG += console
@@ -15,8 +15,7 @@ SOURCES += main.cpp \
     CommandValidator.cpp \
     RandomNodeGenerator.cpp \
     KnownOperators.cpp \
-    GeneticAlgorithm.cpp \
-    RandomTreeGenerator.cpp
+    GeneticAlgorithm.cpp
 
 HEADERS += \
     ExpressionTree.h \
@@ -28,5 +27,4 @@ HEADERS += \
     ErrorsMsg.h \
     RandomNodeGenerator.h \
     KnownOperators.h \
-    GeneticAlgorithm.h \
-    RandomTreeGenerator.h
+    GeneticAlgorithm.h

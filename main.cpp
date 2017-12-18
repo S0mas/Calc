@@ -2,7 +2,6 @@
 #include "IExpressionTree.h"
 #include "Logger.h"
 #include "GeneticAlgorithm.h"
-#include <unistd.h>
 #include <fstream>
 #include <time.h>
 #include <cstdio>
@@ -11,6 +10,7 @@
 #include <QTextStream>
 
 bool Logger::debugPrintsOn;
+std::vector<std::string> AbstractExpressionNode::deletedAddresses;
 
 bool loadDataFile(const QString& fileName, GeneticAlgorithm::Data& data)
 {
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     GeneticAlgorithm genAlg;
     GeneticAlgorithm::Data data;
     GeneticAlgorithm::Result result;
-    GeneticAlgorithm::Setup setup(200, 45, 10, 5, 1);
+    GeneticAlgorithm::Setup setup(200, 45, 50, 100, 1);
 
     for(auto& fileName : files)
     {

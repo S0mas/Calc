@@ -14,45 +14,71 @@ const std::string& RandomNodeGenerator::getRandomOperator2Args()
 
 AbstractExpressionNode* RandomNodeGenerator::getRandomVariable(const std::map<const std::string, double>& variablesMap)
 {
+    std::cout << "O";
     if(variablesMap.empty())
-        return new Constant(Helper::getRandomNumber()%10+1);
+        return new (std::nothrow) Constant(Helper::getRandomNumber()%10+1);
 
     unsigned position = Helper::getRandomNumber() % variablesMap.size();
     unsigned i = 0;
 
+    std::cout << "I";
     for(auto& pair : variablesMap)
     {
+        std::cout << "G" << i;
         if(i==position)
-            return new Variable(pair.first, pair.second);
+        {
+            std::cout << pair.first << " " << pair.second;
+            return new (std::nothrow) Variable(pair.first, pair.second);
+        }
+
         i++;
     }
+    std::cout << "GOWNO";
+    std::cin >> i;
     return nullptr;//cant reach
 }
 
-AbstractExpressionNode* RandomNodeGenerator::fillNode(AbstractExpressionNode* nodeToFill, const std::map<const std::string, double>& variablesMap)
+AbstractExpressionNode* RandomNodeGenerator::getRandomNode(const std::map<const std::string, double>& variablesMap, int& operatorsMaxCount)
 {
-    for(auto& child : nodeToFill->getChilds())
-        child = getRandomLeaf(variablesMap);
-    return nodeToFill;
-}
-
-AbstractExpressionNode* RandomNodeGenerator::getRandomNode()
-{
+    std::cout << "Z";
     if(Helper::getRandomNumber()%2)
-        return new Operator1Arg(getRandomOperator1Arg(), getRandomNode());
-    return new Operator2Arg(getRandomOperator2Args(), getRandomNode(), getRandomNode());
+        return new (std::nothrow) Operator1Arg(getRandomOperator1Arg(), getRandomTree(variablesMap, operatorsMaxCount));
+    return new (std::nothrow) Operator2Arg(getRandomOperator2Args(), getRandomTree(variablesMap, operatorsMaxCount), getRandomTree(variablesMap, operatorsMaxCount));
 }
 
 AbstractExpressionNode* RandomNodeGenerator::getRandomLeaf(const std::map<const std::string, double>& variablesMap)
 {
+    std::cout << "Y";
     if(Helper::getRandomNumber()%2)
-        return new Constant(Helper::getRandomNumber()%10 + 1);
+    {
+        std::cout << "Q";
+        return new (std::nothrow) Constant(Helper::getRandomNumber()%10 + 1);
+    }
+    std::cout << "L";
     return getRandomVariable(variablesMap);
 }
 
-AbstractExpressionNode* RandomNodeGenerator::getRandomLeafOrNode(const std::map<const std::string, double>& variablesMap)
+AbstractExpressionNode* RandomNodeGenerator::getRandomTree(const std::map<const std::string, double>& variablesMap, int& operatorsMaxCount)
 {
-    if(Helper::getRandomNumber()%2)
-       return fillNode(getRandomNode(), variablesMap);
+    std::cout << "X";
+    while(operatorsMaxCount-- > 0)
+        return getRandomNode(variablesMap, operatorsMaxCount);
     return getRandomLeaf(variablesMap);
+}
+
+const std::map<const std::string, double> RandomNodeGenerator::generateVariablesMap(const unsigned& varsNumber)
+{
+    if(varsNumber > 26)
+        Logger::printError("Too much variables! Max is 26.");
+    std::map<const std::string, double> variablesMap;
+    int charNumber = 65;
+    for(int i = 0; i < varsNumber; ++i, ++charNumber)
+    {
+        char ch = static_cast<char>(charNumber);
+        std::string firstLetter(1, ch);
+
+        variablesMap.insert(std::make_pair(firstLetter, 0.0));
+    }
+
+    return variablesMap;
 }

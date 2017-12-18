@@ -1,15 +1,18 @@
 #include "ExpressionTree.h"
 #include <iostream>
 
-ExpressionTree::ExpressionTree(const ExpressionTree& other) : root(other.root)
+ExpressionTree::ExpressionTree(const ExpressionTree& other) : root(nullptr)
 {
+    clearTree();
+    root = other.root->getCopy();
     fillVariablesMap();
 }
 
-ExpressionTree::ExpressionTree(ExpressionTree&& other) : root(nullptr)
-{
-    swap(*this, other);
-}
+//ExpressionTree::ExpressionTree(ExpressionTree&& other)
+//{
+//    swap(this, &other);
+//    other.root = nullptr;
+//}
 
 ExpressionTree::~ExpressionTree()
 {
@@ -23,23 +26,29 @@ void ExpressionTree::operator=(const ExpressionTree& other)
     variablesMap = other.variablesMap;
 }
 
-void ExpressionTree::operator=(ExpressionTree&& other)
-{
-    clearTree();
-    swap(*this, other);
-}
+//void ExpressionTree::operator=(ExpressionTree&& other)
+//{
+//    clearTree();
+//    swap(this, &other);
+//}
 
-void ExpressionTree::swap(ExpressionTree& left, ExpressionTree& right)
-{
-    std::swap(left.variablesMap, right.variablesMap);
-    std::swap(left.root, right.root);
-}
+//void ExpressionTree::swap(ExpressionTree* left, ExpressionTree* right)
+//{
+//    AbstractExpressionNode* temp = left->root;
+//    left->root = right->root;
+//    right->root = temp;
+
+//    std::map<const std::string, double> tempMap = left->variablesMap;
+//    left->variablesMap = right->variablesMap;
+//    right->variablesMap = tempMap;
+//}
 
 void ExpressionTree::setVariablesValues(const std::vector<double>& valuesVec)
 {
     unsigned i = 0;
     for(auto& pair : variablesMap)
-        pair.second = valuesVec[++i];
+        pair.second = valuesVec[i++];
+
     updateVarsValuesRec(root);
 }
 
@@ -110,44 +119,70 @@ std::string ExpressionTree::toString() const
 AbstractExpressionNode*** ExpressionTree::getRandomNode()
 {
     AbstractExpressionNode*** randomNode = new AbstractExpressionNode**();
-    unsigned nodeNumber = Helper::getRandomNumber() % getTreeSize();
-    getRandomNodeRec(&root, nodeNumber, randomNode);   
+    AbstractExpressionNode** parent = new AbstractExpressionNode*();
+    int nodeNumber = 0;
+    std::cout << "TreeSize: " << getTreeSize() << std::endl;
+
+    nodeNumber = Helper::getRandomNumber() % getTreeSize();
+    getRandomNodeRec(&root, nodeNumber, randomNode, parent);
+
+    std::cout << "Rand1 " << *randomNode << std::endl;
+    std::cout << "Rand2 " << **randomNode << std::endl;
+    std::cout << "Parent1 " << Helper::converAddressToString(parent) << std::endl;
+    std::cout << "Parent2 " << Helper::converAddressToString(*parent) << std::endl;
+    if(*parent)
+    {
+        for(auto& child : (*parent)->getChilds())
+        {
+            std::cout << "Childs" << std::endl;
+            std::cout <<child->toAddressTree() <<std::endl;
+        }
+    }
     return randomNode;
 }
 
-void ExpressionTree::getRandomNodeRec(AbstractExpressionNode** root, unsigned& nodeNumber, AbstractExpressionNode*** randomNode)
+void ExpressionTree::getRandomNodeRec(AbstractExpressionNode** xx, int& nodeNumber, AbstractExpressionNode*** randomNode, AbstractExpressionNode** parent)
 {
-    if(root && nodeNumber > 0)
+    if(xx && nodeNumber >= 0)
     {
-        --nodeNumber;
         if(nodeNumber == 0)
-           *randomNode = root;
-        for(auto& child : (*root)->getChilds())
-            getRandomNodeRec(&child, nodeNumber, randomNode);
-    }
-}
+        {
+            --nodeNumber;
+            *randomNode = xx;
+        }
+        else
+        {
+            --nodeNumber;
+            *parent = *xx;
+            std::cout << "SetParent2 " << Helper::converAddressToString(*parent) << std::endl;
+            for(auto& child : (*xx)->getChilds())
+                getRandomNodeRec(&child, nodeNumber, randomNode, parent);
 
-void ExpressionTree::changeRandomNodeToRandomLeaf()
-{
-    AbstractExpressionNode*** randomNode = getRandomNode();
-    delete **randomNode;
-    **randomNode = RandomNodeGenerator::getRandomLeaf(variablesMap);
+        }
+
+    }
 }
 
 void ExpressionTree::mutate()
 {
-    unsigned maxSize = Helper::getRandomNumber()%30 + 30;
+    std::cout <<"1" <<std::endl;
     AbstractExpressionNode*** randomNode = getRandomNode();
 
+    std::cout <<"21" << Helper::converAddressToString(randomNode) << std::endl;
+    std::cout <<"22" << Helper::converAddressToString(*randomNode) << std::endl;
+    std::cout <<"23" << Helper::converAddressToString(**randomNode) << std::endl;
     delete **randomNode;
     **randomNode = nullptr;
+    std::cout <<"3" <<std::endl;
+    int mutationNodeOperatorsCount = Helper::getRandomNumber()%5;
+    std::cout <<"4" <<std::endl;
+    **randomNode = RandomNodeGenerator::getRandomTree(variablesMap, mutationNodeOperatorsCount);
 
-    if(getTreeSize() < maxSize)
-        **randomNode = RandomNodeGenerator::getRandomLeafOrNode(variablesMap);
-    else
-        **randomNode = RandomNodeGenerator::getRandomLeaf(variablesMap);
-
+    std::cout <<"\nNULL???" << Helper::converAddressToString(**randomNode) << std::endl;
+    std::cout <<"\nCOTO" << (**randomNode)->toStringTree() << std::endl;
+    std::cout <<"\n5" << (**randomNode)->toAddressTree() << std::endl;
     delete randomNode;
+    std::cout <<"6" <<std::endl;
 }
 
 void ExpressionTree::createTree(const std::vector<std::string>& strVec)

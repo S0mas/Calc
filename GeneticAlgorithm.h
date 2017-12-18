@@ -1,10 +1,9 @@
 #ifndef GENETICALGORITHM_H
 #define GENETICALGORITHM_H
-
-#include "RandomTreeGenerator.h"
 #include "limits"
-
-
+#include <vector>
+#include <string>
+#include "ExpressionTree.h"
 
 class GeneticAlgorithm
 {
